@@ -3,123 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>太空單字探險家 v3.1 - 彩虹狗狗老師</title>
+    <title>太空單字探險家 v3.2 - 彩虹狗狗老師</title>
     <style>
         :root {
-            --bg: #05050d;
-            --neon: #00f2fe;
-            --accent: #ff00de;
-            --glass: rgba(15, 15, 35, 0.9);
+            --bg: #05050d; --neon: #00f2fe; --accent: #ff00de; --glass: rgba(18, 18, 40, 0.9);
         }
         body {
             margin: 0; background: var(--bg); color: white;
             font-family: 'Segoe UI', "Microsoft JhengHei", sans-serif;
             display: flex; justify-content: center; align-items: center;
             height: 100vh; overflow: hidden;
-            background-image: radial-gradient(circle, #1b2735 0%, #090a0f 100%);
+            background-image: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
         }
         #game-container {
-            width: 90%; max-width: 450px; background: var(--glass);
-            backdrop-filter: blur(10px); border-radius: 20px; padding: 25px;
+            width: 90%; max-width: 440px; background: var(--glass);
+            backdrop-filter: blur(15px); border-radius: 24px; padding: 25px;
             border: 1px solid rgba(0, 242, 254, 0.3); text-align: center; position: relative;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 30px rgba(0,0,0,0.6);
         }
         /* 狀態列 */
-        .header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-        .lv-tag { background: linear-gradient(45deg, #ffd700, #ffa500); color: #000; padding: 3px 12px; border-radius: 50px; font-weight: bold; font-size: 0.8em; }
-        .exp-bg { flex-grow: 1; height: 10px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; border: 1px solid #333; }
-        #exp-fill { height: 100%; background: var(--neon); width: 0%; transition: width 0.4s; box-shadow: 0 0 10px var(--neon); }
+        .header { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; }
+        .lv-tag { background: linear-gradient(45deg, #ffd700, #ffa500); color: #000; padding: 4px 14px; border-radius: 50px; font-weight: bold; font-size: 0.85em; box-shadow: 0 0 10px rgba(255,215,0,0.4); }
+        .exp-bg { flex-grow: 1; height: 12px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; border: 1px solid #333; }
+        #exp-fill { height: 100%; background: var(--neon); width: 0%; transition: width 0.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); box-shadow: 0 0 10px var(--neon); }
 
-        /* 畫面切換 */
-        .screen { display: none; }
+        .screen { display: none; animation: fadeIn 0.4s; }
         .active { display: block; }
-        .menu-title { font-size: 2em; color: var(--neon); margin-bottom: 25px; text-shadow: 0 0 10px var(--neon); }
-        .btn-mode {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            padding: 20px; border-radius: 15px; margin-bottom: 12px; cursor: pointer; transition: 0.3s; width: 100%; color: white;
-        }
-        .btn-mode:hover { border-color: var(--neon); background: rgba(0,242,254,0.1); transform: scale(1.02); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 遊戲區域 */
-        .arena { height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        #monster { font-size: 65px; margin-bottom: 10px; animation: float 3s infinite ease-in-out; }
+        .menu-title { font-size: 2.2em; color: var(--neon); margin-bottom: 25px; text-shadow: 0 0 15px var(--neon); letter-spacing: 2px; }
+        .btn-mode {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);
+            padding: 22px; border-radius: 18px; margin-bottom: 15px; cursor: pointer; transition: 0.3s; width: 100%; color: white; text-align: left;
+        }
+        .btn-mode:hover { border-color: var(--neon); background: rgba(0,242,254,0.15); transform: scale(1.03); }
+        .btn-mode h3 { margin: 0 0 5px 0; color: #fff; }
+        .btn-mode p { margin: 0; font-size: 0.85em; color: #aaa; }
+
+        /* 戰鬥區 */
+        .arena { height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center; margin-bottom: 15px; }
+        #monster { font-size: 70px; animation: float 3s infinite ease-in-out; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         
-        .opt-grid { display: flex; flex-direction: column; gap: 10px; }
-        .btn-opt { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 14px; border-radius: 12px; cursor: pointer; font-size: 1.1em; }
-        .btn-opt:hover { background: var(--neon); color: black; font-weight: bold; }
+        .opt-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .btn-opt { background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 15px; border-radius: 14px; cursor: pointer; font-size: 1.1em; transition: 0.2s; }
+        .btn-opt:hover { background: var(--neon); color: #000; font-weight: bold; box-shadow: 0 0 15px var(--neon); }
         
-        #spell-in { width: 85%; padding: 15px; font-size: 1.5em; text-align: center; border-radius: 12px; border: 2px solid var(--neon); background: #000; color: var(--neon); outline: none; }
+        #spell-in { width: 90%; padding: 15px; font-size: 1.6em; text-align: center; border-radius: 15px; border: 2px solid var(--neon); background: #000; color: var(--neon); outline: none; box-shadow: 0 0 10px rgba(0,242,254,0.2); }
 
         /* 圖鑑區 */
-        .lib-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-height: 220px; overflow-y: auto; padding: 10px; margin-top: 10px; }
-        .pet-card { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 5px; border: 1px solid #444; }
-        .pet-img { width: 100%; image-rendering: pixelated; }
+        .lib-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-height: 240px; overflow-y: auto; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 15px; }
+        .pet-card { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 8px; border: 1px solid #444; transition: 0.3s; }
+        .pet-card:hover { transform: translateY(-5px); border-color: var(--accent); background: rgba(255,0,222,0.1); }
+        .pet-img { width: 100%; height: auto; image-rendering: pixelated; }
         
-        .back-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); border: 1px solid #555; color: #ccc; cursor: pointer; padding: 4px 10px; border-radius: 5px; font-size: 0.8em; z-index: 10; }
+        .back-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 1px solid #555; color: #fff; cursor: pointer; padding: 5px 12px; border-radius: 8px; font-size: 0.8em; z-index: 100; }
+        .footer-info { margin-top:20px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; font-size:0.85em; color:#888; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
     <div class="header">
-        <span class="lv-tag">LV <span id="lv">1</span></span>
+        <span class="lv-tag">RANK <span id="lv">1</span></span>
         <div class="exp-bg"><div id="exp-fill"></div></div>
     </div>
 
     <div id="scr-menu" class="screen active">
         <div class="menu-title">🐾 太空單字探險家</div>
-        <button class="btn-mode" onclick="startMode('mcq')"><h3>⚔️ 意義選擇戰鬥</h3><p>看英文，選出正確中文意思</p></button>
-        <button class="btn-mode" onclick="startMode('spelling')"><h3>🎧 聽力拼字大戰</h3><p>聽語音發音，拼出正確英文</p></button>
-        <button class="btn-mode" onclick="showLibrary()"><h3>📖 星際圖鑑</h3><p>查看已收集的點陣夥伴</p></button>
+        <div class="btn-mode" onclick="startMode('mcq')"><h3>⚔️ 意義選擇戰鬥</h3><p>觀察英文代碼，切換正確中文頻道</p></div>
+        <div class="btn-mode" onclick="startMode('spelling')"><h3>🎧 聽力拼字大戰</h3><p>接收星際語音，輸入正確英文代碼</p></div>
+        <div class="btn-mode" onclick="showLibrary()"><h3>📖 星際夥伴圖鑑</h3><p>檢視已孵化的日式點陣小隊</p></div>
     </div>
 
     <div id="scr-game" class="screen">
-        <button class="back-btn" onclick="toHome()">返回主選單</button>
+        <button class="back-btn" onclick="toHome()">🏠 退出</button>
         <div class="arena">
             <div id="monster">👾</div>
-            <h2 id="display-q" style="margin: 0; font-size: 2.2em; text-shadow: 0 0 10px #fff;"></h2>
+            <h2 id="display-q" style="margin: 0; font-size: 2.4em; text-shadow: 0 0 10px var(--neon);"></h2>
         </div>
         <div id="mcq-box" class="opt-grid"></div>
         <div id="spell-box" style="display:none;">
-            <p id="spell-hint" style="color:var(--neon); font-size: 1.2em; margin-bottom: 15px;"></p>
-            <input type="text" id="spell-in" placeholder="請輸入拼字..." autocomplete="off">
-            <button onclick="speak(curQ.w)" style="margin-top:10px; background:none; border:1px solid #555; color:#888; cursor:pointer; padding:5px;">🔊 重聽一次</button>
+            <p id="spell-hint" style="color:var(--accent); font-size: 1.3em; margin: 10px 0; font-weight:bold;"></p>
+            <input type="text" id="spell-in" placeholder="輸入單字..." autocomplete="off">
+            <button onclick="speak(curQ.w)" style="margin-top:15px; background:none; border:1px solid #555; color:#aaa; cursor:pointer; padding:6px 12px; border-radius:5px;">🔊 重聽發音 (或按R鍵)</button>
         </div>
     </div>
 
     <div id="scr-lib" class="screen">
-        <button class="back-btn" onclick="toHome()">返回主選單</button>
-        <h3 style="color:var(--neon); margin-top: 10px;">已獲得的夥伴</h3>
+        <button class="back-btn" onclick="toHome()">🏠 返回</button>
+        <h3 style="color:var(--neon); margin: 10px 0;">我的夥伴圖鑑</h3>
         <div id="lib-list" class="lib-grid"></div>
-        <div id="lib-stats" style="margin-top:15px; font-size:0.85em; color:#aaa; line-height: 1.6;"></div>
+        <div id="lib-stats" style="margin-top:15px; font-size:0.9em; color:var(--neon);"></div>
     </div>
 
-    <div style="margin-top:20px; border-top:1px solid #333; padding-top:10px; font-size:0.8em; color:#555;">
-        孵化能量 (答對 10 題孵化): <span id="egg-val">0</span>/10
+    <div class="footer-info">
+        孵化能量 (<span id="egg-val">0</span>/10) <span id="egg-icons"></span>
     </div>
 </div>
 
 <script>
-// --- 核心單字資料 ---
+// --- 單字資料庫 (300字) ---
 const WORDS = [
     {w: "afternoon", m: "下午"}, {w: "funny", m: "有趣的"}, {w: "giraffe", m: "長頸鹿"}, {w: "aunt", m: "阿姨"}, {w: "angry", m: "生氣的"}, {w: "animal", m: "動物"}, {w: "ant", m: "螞蟻"}, {w: "arm", m: "手臂"}, {w: "ax", m: "斧頭"}, {w: "bathroom", m: "浴室"}, {w: "bear", m: "熊"}, {w: "cute", m: "可愛的"}, {w: "Daddy", m: "爸爸"}, {w: "dance", m: "跳舞"}, {w: "daughter", m: "女兒"}, {w: "day", m: "日子"}, {w: "dentist", m: "牙醫"}, {w: "desk", m: "桌子"}, {w: "dinner", m: "晚餐"}, {w: "girl", m: "女孩"}, {w: "go", m: "走去"}, {w: "grandfather", m: "祖父"}, {w: "grandmother", m: "祖母"}, {w: "grandparents", m: "祖父母"}, {w: "great", m: "好的"}, {w: "beautiful", m: "美麗的"}, {w: "bed", m: "床"}, {w: "bedroom", m: "臥房"}, {w: "begin", m: "開始"}, {w: "behind", m: "後面"}, {w: "better", m: "較好的"}, {w: "between", m: "之間"}, {w: "big", m: "大的"}, {w: "bike", m: "腳踏車"}, {w: "bird", m: "小鳥"}, {w: "black", m: "黑色"}, {w: "blue", m: "藍色"}, {w: "body", m: "身體"}, {w: "book", m: "書"}, {w: "book bag", m: "書包"}, {w: "bookshelf", m: "書架"}, {w: "boy", m: "男孩"}, {w: "bread", m: "麵包"}, {w: "breakfast", m: "早餐"}, {w: "brother", m: "兄弟"}, {w: "brown", m: "咖啡色"}, {w: "bye", m: "再見"}, {w: "car", m: "車子"}, {w: "cat", m: "貓"}, {w: "circle", m: "圓圈"}, {w: "diamond", m: "菱形"}, {w: "dining room", m: "飯廳"}, {w: "dizzy", m: "頭暈"}, {w: "doctor", m: "醫生"}, {w: "dog", m: "狗"}, {w: "door", m: "門"}, {w: "dress", m: "洋裝"}, {w: "drink", m: "喝"}, {w: "duck", m: "鴨子"}, {w: "ear", m: "耳朵"}, {w: "eat", m: "吃"}, {w: "egg", m: "蛋"}, {w: "eight", m: "八"}, {w: "eighteen", m: "十八"}, {w: "eighty", m: "八十"}, {w: "elephant", m: "大象"}, {w: "eleven", m: "十一"}, {w: "end", m: "結束"}, {w: "English", m: "英文"}, {w: "eraser", m: "橡皮擦"}, {w: "evening", m: "晚上"}, {w: "eye", m: "眼睛"}, {w: "face", m: "臉"}, {w: "family", m: "家庭"}, {w: "favorite", m: "最喜愛的"}, {w: "feel", m: "感覺"}, {w: "fever", m: "發燒"}, {w: "fifteen", m: "十五"}, {w: "fifth", m: "第五"}, {w: "fifty", m: "五十"}, {w: "finger", m: "手指"}, {w: "first", m: "第一"}, {w: "chair", m: "椅子"}, {w: "cheer up", m: "開心點"}, {w: "child", m: "小孩"}, {w: "class", m: "課堂"}, {w: "climb", m: "攀爬"}, {w: "clock", m: "時鐘"}, {w: "closed", m: "關閉的"}, {w: "cloudy", m: "多雲的"}, {w: "coat", m: "外套"}, {w: "flower", m: "花"}, {w: "cold", m: "冷的"}, {w: "color", m: "顏色"}, {w: "cook", m: "煮"}, {w: "couch", m: "長沙發"}, {w: "cousin", m: "堂兄弟"}, {w: "cow", m: "母牛"}, {w: "crayon", m: "蠟筆"}, {w: "fish", m: "魚"}, {w: "five", m: "五"}, {w: "forty", m: "四十"}, {w: "found", m: "找到"}, {w: "four", m: "四"}, {w: "fourth", m: "第四"}, {w: "Friday", m: "星期五"}, {w: "friend", m: "朋友"}, {w: "fruit", m: "水果"}, {w: "green", m: "綠色"}, {w: "hair", m: "頭髮"}, {w: "hand", m: "手"}, {w: "happy", m: "快樂的"}, {w: "hat", m: "帽子"}, {w: "have", m: "有"}, {w: "head", m: "頭"}, {w: "headache", m: "頭痛"}, {w: "heart", m: "心"}, {w: "home", m: "家"}, {w: "homework", m: "作業"}, {w: "horse", m: "馬"}, {w: "hot", m: "熱的"}, {w: "house", m: "房子"}, {w: "hundred", m: "一百"}, {w: "hungry", m: "飢餓的"}, {w: "hurt", m: "受傷"}, {w: "in", m: "在內"}, {w: "in front of", m: "在前面"}, {w: "ink", m: "墨水"}, {w: "jam", m: "果醬"}, {w: "juice", m: "果汁"}, {w: "jump", m: "跳"}, {w: "jump rope", m: "跳繩"}, {w: "jungle gym", m: "攀爬架"}, {w: "kitchen", m: "廚房"}, {w: "kite", m: "風箏"}, {w: "knee", m: "膝蓋"}, {w: "leg", m: "小腿"}, {w: "lion", m: "獅子"}, {w: "living room", m: "客廳"}, {w: "lost", m: "失去"}, {w: "love", m: "愛"}, {w: "lunch", m: "午餐"}, {w: "make", m: "製作"}, {w: "many", m: "許多的"}, {w: "marker", m: "彩色筆"}, {w: "me", m: "我"}, {w: "meat", m: "肉"}, {w: "meet", m: "遇見"}, {w: "scary", m: "嚇人的"}, {w: "school", m: "學校"}, {w: "second", m: "第二"}, {w: "Monday", m: "星期一"}, {w: "monkey", m: "猴子"}, {w: "morning", m: "早上"}, {w: "seesaw", m: "蹺蹺板"}, {w: "mother", m: "母親"}, {w: "seven", m: "七"}, {w: "mouth", m: "嘴巴"}, {w: "seventeen", m: "十七"}, {w: "short", m: "短的"}, {w: "name", m: "名字"}, {w: "neck", m: "脖子"}, {w: "net", m: "網子"}, {w: "next to", m: "在旁邊"}, {w: "night", m: "晚上"}, {w: "nine", m: "九"}, {w: "nineteen", m: "十九"}, {w: "ninety", m: "九十"}, {w: "noodles", m: "麵條"}, {w: "nose", m: "鼻子"}, {w: "o'clock", m: "點鐘"}, {w: "old", m: "老的"}, {w: "older", m: "較老的"}, {w: "on", m: "在上"}, {w: "on top of", m: "在頂端"}, {w: "one", m: "一"}, {w: "open", m: "打開"}, {w: "orange", m: "橘色"}, {w: "oval", m: "橢圓"}, {w: "ox", m: "公牛"}, {w: "pants", m: "褲子"}, {w: "paper", m: "紙"}, {w: "parents", m: "父母"}, {w: "park", m: "公園"}, {w: "shorter", m: "較短的"}, {w: "shoulder", m: "肩膀"}, {w: "shy", m: "害羞"}, {w: "seventh", m: "第七"}, {w: "seventy", m: "七十"}, {w: "shape", m: "形狀"}, {w: "shirt", m: "襯衫"}, {w: "ten", m: "十"}, {w: "tent", m: "帳篷"}, {w: "than", m: "比"}, {w: "they", m: "他們"}, {w: "third", m: "第三"}, {w: "thirsty", m: "口渴"}, {w: "thirteen", m: "十三"}, {w: "thirty", m: "三十"}, {w: "three", m: "三"}, {w: "Thursday", m: "星期四"}, {w: "tiger", m: "老虎"}, {w: "time", m: "時間"}, {w: "today", m: "今天"}, {w: "toe", m: "腳趾"}, {w: "shoes", m: "鞋子"}, {w: "tomorrow", m: "明天"}, {w: "sick", m: "生病"}, {w: "toothache", m: "牙痛"}, {w: "sister", m: "姐妹"}, {w: "sing", m: "唱歌"}, {w: "six", m: "六"}, {w: "sixteen", m: "十六"}, {w: "sixth", m: "第六"}, {w: "sixty", m: "六十"}, {w: "skirt", m: "裙子"}, {w: "sleep", m: "睡覺"}, {w: "sleepy", m: "想睡"}, {w: "slide", m: "滑梯"}, {w: "small", m: "小的"}, {w: "snake", m: "蛇"}, {w: "pen", m: "原子筆"}, {w: "pencil", m: "鉛筆"}, {w: "pig", m: "豬"}, {w: "pink", m: "粉紅"}, {w: "play", m: "玩"}, {w: "playground", m: "遊樂場"}, {w: "purple", m: "紫色"}, {w: "queen", m: "皇后"}, {w: "rainy", m: "下雨"}, {w: "rat", m: "老鼠"}, {w: "sock", m: "襪子"}, {w: "some", m: "一些"}, {w: "son", m: "兒子"}, {w: "star", m: "星星"}, {w: "stomach", m: "胃"}, {w: "stomachache", m: "胃痛"}, {w: "store", m: "商店"}, {w: "student", m: "學生"}, {w: "study", m: "學習"}, {w: "sun", m: "太陽"}, {w: "Sunday", m: "週日"}, {w: "sunny", m: "晴朗"}, {w: "sweater", m: "毛衣"}, {w: "swing", m: "鞦韆"}, {w: "table", m: "桌子"}, {w: "red", m: "紅色"}, {w: "rice", m: "米飯"}, {w: "take off", m: "脫下"}, {w: "tall", m: "高的"}, {w: "read", m: "閱讀"}, {w: "rectangle", m: "長方形"}, {w: "ride", m: "騎"}, {w: "ruler", m: "尺"}, {w: "run", m: "跑步"}, {w: "sad", m: "難過"}, {w: "Saturday", m: "週六"}, {w: "teacher", m: "老師"}, {w: "scared", m: "害怕"}, {w: "teeth", m: "牙齒"}, {w: "taller", m: "較高的"}, {w: "tea", m: "茶"}, {w: "two", m: "二"}, {w: "tree", m: "樹"}, {w: "triangle", m: "三角形"}, {w: "T-shirt", m: "T恤"}, {w: "Tuesday", m: "週二"}, {w: "twelve", m: "十二"}, {w: "twenty", m: "二十"}, {w: "umbrella", m: "雨傘"}, {w: "uncle", m: "叔叔"}, {w: "under", m: "在下"}, {w: "van", m: "貨車"}, {w: "vase", m: "花瓶"}, {w: "vegetables", m: "蔬菜"}, {w: "walk", m: "走路"}, {w: "wall", m: "牆壁"}, {w: "want", m: "想要"}, {w: "wash", m: "洗"}, {w: "watch", m: "手錶"}, {w: "water", m: "水"}, {w: "we", m: "我們"}, {w: "weather", m: "天氣"}, {w: "Wednesday", m: "週三"}, {w: "week", m: "週"}, {w: "well", m: "好的"}, {w: "white", m: "白色"}, {w: "windy", m: "風大的"}, {w: "with", m: "和"}, {w: "yellow", m: "黃色"}, {w: "you", m: "你"}, {w: "young", m: "年輕"}, {w: "your", m: "你的"}, {w: "yo-yo", m: "溜溜球"}, {w: "zebra", m: "斑馬"}
 ];
 
-// --- 點陣夥伴 (已縮短代碼) ---
-const PETS_LIB = [
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAMElEQVRYR2NkYGBgYBhEgIHE8BAAoxpGNYxqGNUwqmFUw6iGUQ2jGkY1jGoY1TCYDAAAn08BAt9Pr78AAAAASUVORK5CYII=",
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAM0lEQVRYR2NkgID/DAz/GRgYGBhIBY8CMKphVMOohlENoxpGNYxqGNUwqmFUw6iGUQ2D0QAAYL8BAnYmY7UAAAAASUVORK5CYII=",
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAM0lEQVRYR2NkYGD4z0AAsIwCMKphVMOohlENoxpGNYxqGNUwqmFUw6iGUQ2jGkY1jGoY6AwAAL/pAQK775+HAAAAAElFTkSuQmCC"
+// --- 日式點陣夥伴 SVG 資源 (超精簡設計) ---
+const PETS_SVG = [
+    // 1. 太空小狗 (黃色)
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" shape-rendering="crispEdges"><path d="M2 3h1v1H2zm5 0h1v1H7zm-3 4h2v1H4zm-1-3h4v4H3z" fill="%23ffd700"/><path d="M3 4h1v1H3zm3 0h1v1H6z" fill="black"/></svg>',
+    // 2. 星際貓貓 (紫色)
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/xml" viewBox="0 0 10 10" shape-rendering="crispEdges"><path d="M2 2h1v1H2zm5 0h1v1H7zm-5 2h6v4H2z" fill="%23a020f0"/><path d="M3 5h1v1H3zm3 0h1v1H6z" fill="white"/></svg>',
+    // 3. 太空史萊姆 (青色)
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" shape-rendering="crispEdges"><path d="M3 4h4v5H3zm-1 2h6v2H2z" fill="%2300f2fe"/><path d="M4 6h1v1H4zm2 0h1v1H6z" fill="black"/></svg>',
+    // 4. 小太陽怪 (紅色)
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" shape-rendering="crispEdges"><path d="M4 2h2v6H4zM2 4h6v2H2z" fill="%23ff3131"/><path d="M4 4h2v2H4z" fill="white"/></svg>',
+    // 5. 像素機器人 (灰色)
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" shape-rendering="crispEdges"><path d="M3 2h4v5H3zm-1 3h6v2H2zm2 5h2v-1H4z" fill="%23888"/><path d="M4 3h2v1H4z" fill="%2300f2fe"/></svg>'
 ];
 
-// --- 遊戲邏輯與狀態 ---
+// --- 遊戲邏輯 ---
 let state = { lv: 1, exp: 0, egg: 0, pets: [], mode: "", mastered: 0 };
 let curQ = null;
 
-function save() { localStorage.setItem("space_vocab_save", JSON.stringify(state)); }
+function save() { localStorage.setItem("space_master_v3", JSON.stringify(state)); }
 function load() { 
-    const s = localStorage.getItem("space_vocab_save");
+    const s = localStorage.getItem("space_master_v3");
     if(s) state = JSON.parse(s);
 }
 
@@ -134,26 +143,25 @@ function showScreen(id) {
     document.getElementById(id).classList.add('active');
 }
 
-function toHome() { window.speechSynthesis.cancel(); showScreen('scr-menu'); }
-
 function startMode(m) {
-    state.mode = m;
-    showScreen('scr-game');
-    document.getElementById('mcq-box').style.display = m === 'mcq' ? 'flex' : 'none';
+    state.mode = m; showScreen('scr-game');
+    document.getElementById('mcq-box').style.display = m === 'mcq' ? 'grid' : 'none';
     document.getElementById('spell-box').style.display = m === 'spelling' ? 'block' : 'none';
     nextQ();
 }
 
+function toHome() { window.speechSynthesis.cancel(); showScreen('scr-menu'); }
+
 function showLibrary() {
     showScreen('scr-lib');
     const list = document.getElementById('lib-list');
-    list.innerHTML = state.pets.length ? "" : "<p style='grid-column:span 4;'>尚無夥伴</p>";
+    list.innerHTML = state.pets.length ? "" : "<p style='grid-column:span 4; color:#666;'>尚無夥伴，去挑戰吧！</p>";
     state.pets.forEach(src => {
         const div = document.createElement('div'); div.className = 'pet-card';
         const img = document.createElement('img'); img.src = src; img.className = 'pet-img';
         div.appendChild(img); list.appendChild(div);
     });
-    document.getElementById('lib-stats').innerHTML = `單字大師進度: ${state.mastered} / ${WORDS.length}<br>探險等級: LV ${state.lv}`;
+    document.getElementById('lib-stats').innerHTML = `探險總經驗: ${state.exp} EXP<br>已解鎖夥伴: ${state.pets.length} 位<br>掌握單字量: ${state.mastered}`;
 }
 
 function nextQ() {
@@ -193,21 +201,23 @@ function check(ans) {
     const input = isS ? document.getElementById('spell-in').value.toLowerCase().trim() : ans;
 
     if(input === correct) {
-        state.exp += 30; state.egg++; state.mastered++;
+        state.exp += 35; state.egg++; state.mastered++;
         if(state.egg >= 10) { 
-            state.pets.push(PETS_LIB[Math.floor(Math.random()*PETS_LIB.length)]); 
-            state.egg = 0; alert("🐣 孵化成功！獲得新夥伴！"); 
+            const newPet = PETS_SVG[Math.floor(Math.random()*PETS_SVG.length)];
+            state.pets.push(newPet); state.egg = 0;
+            alert("🐣 探測到新生命！一名夥伴加入了你的圖鑑！"); 
         }
-        if(state.exp >= (state.lv * 100)) { state.lv++; alert("🆙 升級為 LV " + state.lv); }
+        if(state.exp >= (state.lv * 100)) { state.lv++; alert("🆙 太強了！探險等級提升至 LV " + state.lv); }
         nextQ();
     } else {
-        alert("差一點點！答案是: " + (isS ? curQ.w : curQ.m));
+        alert("代碼錯誤！正確答案是: " + (isS ? curQ.w : curQ.m));
         nextQ();
     }
     save(); updateUI();
 }
 
-document.getElementById('spell-in').onkeypress = (e) => { if(e.key === 'Enter') check(); };
+document.getElementById('spell-in').onkeydown = (e) => { if(e.key === 'Enter') check(); };
+window.onkeydown = (e) => { if(e.key.toLowerCase() === 'r' && state.mode === 'spelling') speak(curQ.w); };
 window.onload = () => { load(); updateUI(); };
 </script>
 </body>
