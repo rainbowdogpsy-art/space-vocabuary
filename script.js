@@ -1,4 +1,6 @@
-// --- [1] Firebase & 初始化 ---
+/* 太空大腦 v14.1 - 故事循序解鎖版 */
+
+// --- [1] Firebase & 基礎變數 (維持不變) ---
 const firebaseConfig = {
     apiKey: "AIzaSyBdEDFM_zllcQM8aILmfM5cvo_Rm3ouf90",
     authDomain: "space-voc.firebaseapp.com",
@@ -14,7 +16,6 @@ const db = firebase.database();
 
 let WORDS = [], PETS = [], state = {}, wordPool = [], curQ = null, dailyC = 0, revList = [], revIdx = 0;
 
-// 32-bit 風格玩家頭像 (更高解析度與細節)
 const AVATARS = {
     M: [
         `<svg viewBox="0 0 32 32"><path d="M6 4h20v4H6z" fill="#0044bb"/><path d="M4 8h24v16H4z" fill="#fbc3a8"/><path d="M8 12h4v4H8z M20 12h4v4H20z" fill="#000"/><path d="M12 13h1v1H12z M24 13h1v1H24z" fill="#fff" opacity="0.6"/><path d="M6 24h20v8H6z" fill="#000088"/></svg>`,
@@ -28,7 +29,7 @@ const AVATARS = {
     ]
 };
 
-// --- [2] 全域強制對接 (解決 Not Defined BUG) ---
+// --- [2] 全域強制對接 ---
 
 window.showScreen = function(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -81,7 +82,75 @@ window.showSettings = function() {
 window.setGender = function(g) { state.gen = g; showSettings(); updateUI(); };
 window.saveSettings = function() { state.name = document.getElementById('name-in').value || "探險家"; saveGame(); toHome(); };
 
-// --- [3] 核心遊戲邏輯 ---
+// --- [3] 核心邏輯修正：循序解鎖 ---
+
+window.check = function(ans) {
+    const isS = state.mode === 'spelling';
+    const cor = isS ? curQ.w.toLowerCase() : curQ.m;
+    const inp = (isS ? document.getElementById('spell-in').value : ans).toLowerCase().trim();
+
+    if(inp === cor) {
+        state.exp += 30; state.egg++;
+        
+        // 🥚 關鍵修正：依照順序解鎖夥伴
+        if(state.egg >= 10) {
+            const nextIdx = state.pets.length; // 根據目前擁有數量決定下一個編號
+            if (nextIdx < PETS.length) {
+                state.pets.push(nextIdx);
+                alert("🐣 發現新夥伴：" + PETS[nextIdx].n + "\n故事章節已更新！");
+            } else {
+                alert("✨ 你已集齊全宇宙 15 位小夥伴！");
+            }
+            state.egg = 0;
+        }
+    } else {
+        state.egg = 0; 
+        alert("❌ 錯誤！答案是: " + (isS ? curQ.w : curQ.m));
+    }
+
+    if(state.exp >= (state.lv * 100)) { 
+        state.lv++; 
+        alert("🆙 等級提升！探險形象進化！"); 
+    }
+    saveGame(); 
+    nextQ();
+};
+
+window.showStoryList = function() {
+    showScreen('scr-story-list');
+    const container = document.getElementById('scr-story-list');
+    container.innerHTML = `<div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="toHome()">🏠 返回</button></div><h3 style="color:var(--accent); margin:15px 0;">📖 冒險故事百科</h3><div id="story-list" style="display:flex; flex-direction:column; gap:10px;"></div>`;
+    const list = document.getElementById('story-list');
+    
+    if (!state.pets || state.pets.length === 0) {
+        list.innerHTML = "<p style='padding:40px; color:#666; text-align:center;'>尚未開始收集，加油！</p>";
+        return;
+    }
+
+    // 依照 index 排序，保證故事順序
+    state.pets.forEach(idx => {
+        const p = PETS[idx];
+        const div = document.createElement('div');
+        div.style = "background:rgba(255,255,255,0.05); border-radius:15px; padding:15px; display:flex; align-items:center; gap:15px; cursor:pointer; border:1px solid #333;";
+        div.onclick = () => readStory(idx);
+        div.innerHTML = `<div style="width:40px; height:40px; flex-shrink:0;">${p.s}</div><div><div style="font-weight:bold; color:var(--neon);">${p.n}</div><div style="font-size:0.7em; color:#888;">${p.b}</div></div>`;
+        list.appendChild(div);
+    });
+};
+
+// --- [4] 基礎維護 (維持不變) ---
+
+function readStory(idx) {
+    const p = PETS[idx];
+    showScreen('scr-story-read');
+    document.getElementById('scr-story-read').innerHTML = `
+        <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="showStoryList()">⬅️ 返回</button></div>
+        <div style="width:100px; height:100px; margin:20px auto;">${p.s}</div>
+        <h3 style="color:var(--neon); text-align:center;">${p.n}</h3>
+        <div style="background:rgba(0,0,0,0.4); padding:20px; border-radius:15px; line-height:1.6; font-size:0.9em; margin-top:15px; text-align:left;">${p.story}</div>
+        <button class="btn-mode" style="width:100%; margin-top:20px;" onclick="showStoryList()">我讀完了</button>
+    `;
+}
 
 function updateUI() {
     const el = (id) => document.getElementById(id);
@@ -104,7 +173,7 @@ function nextQ() {
     gScr.innerHTML = `
         <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="toHome()">🏠 退出</button></div>
         <div style="text-align:center; padding:20px;">
-            <div style="font-size:3em; animation: float 3s infinite ease-in-out;">👾</div>
+            <div style="font-size:3.5em; animation: float 3.s infinite ease-in-out;">👾</div>
             <h2 style="color:var(--neon); font-size:1.8em; margin:15px 0;">${isS ? '❓❓❓' : curQ.w}</h2>
         </div>
         <div id="mcq-box" style="display:${isS ? 'none' : 'grid'}; grid-template-columns:1fr; gap:8px;"></div>
@@ -127,20 +196,8 @@ function nextQ() {
     }
 }
 
-function check(ans) {
-    const isS = state.mode === 'spelling';
-    const cor = isS ? curQ.w.toLowerCase() : curQ.m;
-    const inp = (isS ? document.getElementById('spell-in').value : ans).toLowerCase().trim();
-    if(inp === cor) {
-        state.exp += 30; state.egg++;
-        if(state.egg >= 10) { const ridx = Math.floor(Math.random()*PETS.length); state.pets.push(ridx); state.egg=0; alert("🐣 發現新夥伴："+PETS[ridx].n); }
-    } else { state.egg = 0; alert("❌ 答案: "+(isS?curQ.w:curQ.m)); }
-    if(state.exp >= (state.lv*100)) { state.lv++; alert("🆙 等級提升！"); }
-    saveGame(); nextQ();
-}
-
 function saveGame() {
-    localStorage.setItem("space_master_v140", JSON.stringify(state));
+    localStorage.setItem("space_master_v141", JSON.stringify(state));
     if(db) db.ref('leaderboard/' + state.id).update({ n: state.name, l: state.lv, g: state.gen });
 }
 
@@ -149,7 +206,7 @@ async function init() {
         const r = await fetch('data.json');
         const data = await r.json();
         WORDS = data.words; PETS = data.pets;
-        const s = localStorage.getItem("space_master_v140");
+        const s = localStorage.getItem("space_master_v141");
         if(s) state = JSON.parse(s);
         else state = { id: Date.now().toString(), lv: 1, exp: 0, egg: 0, pets: [], name: "探險家", gen: "M", mastered: [], lastD: "" };
         updateUI();
