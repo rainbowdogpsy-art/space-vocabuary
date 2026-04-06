@@ -1,82 +1,43 @@
-/* --- 太空探險家 v13.5 手機優化樣式 --- */
 :root {
-    --bg: #0d1117;
+    --bg: #05050d;
     --neon: #00f2fe;
     --accent: #ff00de;
-    --window-bg: rgba(15, 15, 35, 0.98);
+    --glass: rgba(25, 25, 50, 0.85);
 }
 
-/* 核心掃描線與字體 */
 body {
-    margin: 0; padding: 0;
-    background: var(--bg); color: white;
-    font-family: 'Press Start 2P', cursive;
-    display: flex; justify-content: center; align-items: flex-start; /* 改為頂部對齊 */
-    height: 100dvh; overflow: hidden; /* 防止全域滾動 */
-    background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
-    background-size: 100% 2px, 3px 100%;
+    margin: 0; background: var(--bg); color: white;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex; justify-content: center; align-items: center; height: 100dvh; overflow: hidden;
+    background-image: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
 }
 
 #game-container {
-    width: 100%; max-width: 420px; 
-    height: 100dvh; /* 自動適配手機高度 */
-    background: var(--window-bg);
-    border-left: 4px solid #fff; border-right: 4px solid #fff;
-    padding: 12px; box-sizing: border-box;
-    display: flex; flex-direction: column;
+    width: 92%; max-width: 400px; height: 92vh;
+    background: var(--glass); backdrop-filter: blur(10px);
+    border-radius: 20px; border: 1px solid rgba(0, 242, 254, 0.3);
+    padding: 15px; display: flex; flex-direction: column; box-sizing: border-box;
 }
 
-/* 狀態列：圖像縮小，內容橫向排列 */
-.header { 
-    display: flex; align-items: center; gap: 10px; 
-    border-bottom: 3px double var(--neon); padding-bottom: 8px; margin-bottom: 10px;
-    flex-shrink: 0; /* 確保頂部不被壓縮 */
+.header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; flex-shrink: 0; }
+.avatar-box { width: 60px; height: 60px; background: rgba(0,0,0,0.5); border-radius: 12px; border: 2px solid var(--neon); flex-shrink: 0; overflow: hidden; }
+.header-info { flex-grow: 1; }
+.lv-row { display: flex; justify-content: space-between; font-size: 0.8em; font-weight: bold; margin-bottom: 4px; }
+.lv-tag { color: orange; }
+.user-title { color: var(--neon); }
+.exp-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+#exp-fill { height: 100%; background: var(--neon); width: 0%; transition: width 0.4s; }
+
+/* 介面按鈕：還原 12.0 扁平現代感 */
+.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.btn-mode, .btn-game, .btn-daily {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    color: white; padding: 15px 5px; border-radius: 12px; cursor: pointer; font-size: 0.9em; transition: 0.2s;
 }
+.btn-daily { width: 100%; margin-bottom: 8px; border-color: orange; background: rgba(255,165,0,0.1); }
+.btn-mode:active, .btn-game:active { background: var(--neon); color: #000; }
 
-.avatar-box {
-    width: 54px !important; height: 54px !important; 
-    background: #000; border: 2px solid #fff;
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-
-.avatar-svg, svg { width: 100%; height: 100%; image-rendering: pixelated; }
-
-.header-info { flex-grow: 1; text-align: left; }
-.lv-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.lv-tag { font-size: 8px; background: orange; color: #000; padding: 2px 4px; }
-#display-name { font-size: 11px; color: #fff; }
-.exp-bg { width: 100%; height: 8px; background: #000; border: 1px solid #fff; }
-#exp-fill { height: 100%; background: var(--neon); width: 0%; transition: 0.3s; }
-
-/* 畫面區域：可滾動，防止截斷 */
-#screens {
-    flex-grow: 1; 
-    overflow-y: auto; /* 內容過長時內部滾動 */
-    padding-bottom: 20px;
-}
-
-.screen { display: none; width: 100%; }
-.screen.active { display: block; }
-
-/* 按鈕：字體放大，寬度自適應 */
-.btn-mode, .btn-opt {
-    background: #2a2a5a; border: 3px solid #000;
-    border-top-color: #5a5a9a; border-left-color: #5a5a9a;
-    color: #fff; padding: 14px 8px; cursor: pointer; 
-    font-size: 10px !important; /* 放大字體 */
-    margin-bottom: 8px; width: 100%; box-sizing: border-box;
-    font-family: 'Press Start 2P', cursive;
-}
-
-.btn-mode h3 { font-size: 12px; margin: 0 0 6px 0; color: var(--neon); }
-.btn-mode p { font-size: 8px; margin: 0; color: #aaa; line-height: 1.4; }
-
-/* 戰鬥畫面優化 */
-.arena { min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 10px 0; }
-#monster-sprite { width: 80px; height: 80px; }
-
-/* 頁腳 */
-#footer-egg {
-    font-size: 8px; color: #888; padding-top: 8px;
-    border-top: 1px solid #333; text-align: center; flex-shrink: 0;
-}
+.screen { display: none; height: 100%; overflow-y: auto; }
+.active { display: block; }
+svg { image-rendering: pixelated; width: 100%; height: 100%; }
+#footer-egg { font-size: 0.7em; color: #888; text-align: center; padding-top: 10px; }
