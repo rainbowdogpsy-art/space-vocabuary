@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太空單字探險家 v2.0 - 彩虹狗狗老師</title>
+    <style>
+        /* --- 核心定義與變數 --- */
+        :root {
+            --bg-color: #050509;
+            --panel-bg: rgba(20, 20, 35, 0.6);
+            --primary-neon: #00f2fe;
+            --secondary-neon: #4facfe;
+            --accent-neon: #ff00de;
+            --success-color: #39ff14;
+            --error-color: #ff3131;
+            --text-color: #ffffff;
+            --gold-color: #ffd700;
+            --font-main: 'Segoe UI', Roboto, Helvetica, Arial, "Microsoft JhengHei", sans-serif;
+        }
+
+        /* --- 賽博龐克太空星空背景 --- */
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            animation: starMove 100s linear infinite;
+            color: var(--text-color);
+            font-family: var(--font-main);
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes starMove {
+            from { background-position: 0 0, 40px 60px, 130px 270px; }
+            to { background-position: -550px 1100px, -350px 700px, -250px 500px; }
+        }
+
+        /* --- 霓虹光暈效果 --- */
+        .neon-text {
+            text-shadow: 0 0 5px rgba(255,255,255,0.5), 0 0 10px var(--primary-neon), 0 0 20px var(--primary-neon);
+        }
+        .neon-border {
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+            border: 1px solid rgba(0, 242, 254, 0.5);
+        }
+
+        /* --- 主容器 (毛玻璃效果) --- */
+        #game-container {
+            width: 90%; max-width: 500px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px; padding: 30px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 10px rgba(79, 172, 254, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        /* --- 頂部狀態列優化 --- */
+        .status-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 25px; padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .level-badge {
+            background: linear-gradient(135deg, var(--gold-color), #b8860b);
+            color: #000; padding: 5px 15px; border-radius: 50px;
+            font-weight: bold; font-size: 0.9em;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .exp-container { display: flex; align-items: center; flex-grow: 1; margin: 0 15px; }
+        .exp-bar-container {
+            flex-grow: 1; height: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+        }
+        #exp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary-neon), var(--primary-neon));
+            width: 0%; transition: width 0.4s ease-out;
+            box-shadow: 0 0 10px var(--primary-neon);
+        }
+        .exp-text { font-size: 0.8em; color: rgba(255,255,255,0.7); width: 60px; text-align: right;}
+
+        /* --- 主選單畫面 --- */
+        .menu-title { font-size: 2em; margin-bottom: 35px; color: var(--primary-neon); }
+        .mode-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 25px; border-radius: 15px; margin-bottom: 20px;
+            cursor: pointer; transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        .mode-card:hover {
+            background: rgba(0, 242, 254, 0.1);
+            border-color: var(--primary-neon);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 242, 254, 0.3);
+        }
+        .mode-card::after {
+            content: ''; position: absolute; width: 100px; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            top: 0; left: -150px; transform: skewX(-20deg);
+            transition: 0.5s;
+        }
+        .mode-card:hover::after { left: 100%; }
+        .mode-card h3 { margin: 0 0 8px 0; font-size: 1.3em; color: var(--text-color); }
+        .mode-card p { margin: 0; font-size: 0.9em; color: rgba(255,255,255,0.6); }
+
+        /* --- 遊戲主畫面 --- */
+        #game-screen { display: none; }
+        
+        /* 戰鬥區域與怪物彈跳動畫 */
+        .battle-arena {
+            height: 180px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; margin-bottom: 25px;
+            position: relative;
+        }
+        #monster-sprite {
+            font-size: 70px; margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+            animation: monsterFloat 3s infinite ease-in-out;
+            transition: all 0.2s ease;
+        }
+        @keyframes monsterFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.05); }
+        }
+        
+        /* 單字/題目顯示 */
+        #current-display {
+            font-size: 2.5em; margin: 0; min-height: 1.2em;
+            color: var(--text-color);
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            font-weight: 700;
+        }
+        
+        /* 答題回饋動畫 */
+        @keyframes correctFlash {
+            0%, 100% { background: var(--panel-bg); }
+            50% { background: rgba(57, 255, 20, 0.2); border-color: var(--success-color); }
+        }
+        @keyframes wrongFlash {
+            0%, 100% { background: var(--panel-bg); }
+            50% { background: rgba
