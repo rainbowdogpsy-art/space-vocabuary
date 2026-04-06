@@ -1,45 +1,62 @@
-/* style.css - 16-bit 旗艦優化版 */
-:root {
-    --bg: #0d1117;
-    --neon: #00f2fe;
-    --accent: #ff00de;
-    --window-bg: rgba(20, 20, 45, 0.95);
-    --snes-gray: #ccc;
-}
+// [大腦修正 v13.1]
+window.updateUI = function() {
+    const el = (id) => document.getElementById(id);
+    if(el('lv')) el('lv').innerText = state.lv;
+    if(el('exp-fill')) el('exp-fill').style.width = (state.exp % 100) + "%";
+    if(el('egg-val')) el('egg-val').innerText = state.egg;
+    if(el('display-name')) el('display-name').innerText = state.name;
+    
+    // 渲染頭像
+    let tier = state.lv >= 36 ? 2 : (state.lv >= 11 ? 1 : 0);
+    const avBox = el('player-avatar');
+    if(avBox) avBox.innerHTML = AVATARS[state.gen || 'M'][tier];
+    
+    const ts = ["實習生","拾荒者","搜索官","通訊員","拓荒者","單字神"];
+    if(el('display-title')) el('display-title').innerText = ts[Math.min(Math.floor(state.lv/10), 5)];
+};
 
-body {
-    margin: 0; background: var(--bg); color: white;
-    font-family: 'Press Start 2P', cursive; /* 請確保 index.html 有引用此字體 */
-    display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden;
-    /* 16-bit 掃描線濾鏡 */
-    background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    background-size: 100% 2px, 3px 100%;
-}
+window.showScreen = function(id) {
+    // 先隱藏所有畫面
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    // 只顯示目標畫面
+    const target = document.getElementById(id);
+    if(target) target.classList.add('active');
+};
 
-#game-container {
-    width: 95%; max-width: 440px; background: var(--window-bg);
-    border: 6px double #fff; /* 經典日系 RPG 雙框 */
-    padding: 20px; box-shadow: 10px 10px 0px #000;
-}
+// 修正戰鬥渲染，避免怪物跑去主選單
+window.nextQ = function() {
+    if (wordPool.length === 0) wordPool = [...WORDS].sort(() => Math.random() - 0.5);
+    curQ = wordPool.pop();
+    const isS = state.mode === 'spelling';
+    const gScr = document.getElementById('scr-game');
 
-.header { border-bottom: 4px double var(--neon); padding-bottom: 10px; margin-bottom: 15px; }
+    const monsterSprite = `<svg viewBox="0 0 16 16" width="80" height="80"><path d="M4 14h8v1H4z" fill="#440044"/><path d="M2 7h12v5H2z" fill="#880088"/><path d="M4 8h3v3H4z M9 8h3v3H9z" fill="#fff"/><path d="M5 9h1v1H5z" fill="#000"/></svg>`;
 
-/* 16-bit 立體按鈕 */
-.btn-mode, .btn-opt {
-    background: #3a3a7a; border: 4px solid #000;
-    border-top-color: #6a6aaa; border-left-color: #6a6aaa; /* 亮邊 */
-    color: #fff; padding: 12px; cursor: pointer; font-size: 9px;
-    box-shadow: 4px 4px 0px #000; margin-bottom: 8px;
-}
+    gScr.innerHTML = `
+        <div style="text-align:left;"><button class="back-btn" onclick="toHome()">🏠 退出</button></div>
+        <div class="arena">
+            <div style="animation: float 3s infinite ease-in-out;">${monsterSprite}</div>
+            <h2 style="font-size:12px; margin-top:10px;">${isS ? '❓❓❓' : curQ.w}</h2>
+        </div>
+        <div id="mcq-box" style="display:${isS ? 'none' : 'flex'}; flex-direction:column;"></div>
+        <div id="spell-box" style="display:${isS ? 'block' : 'none'};">
+            <p style="color:var(--accent); font-size:9px; margin-bottom:10px;">${curQ.m}</p>
+            <input type="text" id="spell-in" autocomplete="off" style="width:80%; font-family:'Press Start 2P'; font-size:10px; padding:10px;">
+        </div>
+    `;
 
-.btn-mode:active, .btn-opt:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px #000; }
+    if(!isS) {
+        let opts = [curQ.m];
+        while(opts.length<4){ let r=WORDS[Math.floor(Math.random()*WORDS.length)].m; if(!opts.includes(r))opts.push(r); }
+        opts.sort(()=>Math.random()-0.5).forEach(o => {
+            const b = document.createElement('button'); b.className = 'btn-opt'; b.innerText = o; b.onclick = () => check(o);
+            document.getElementById('mcq-box').appendChild(b);
+        });
+    } else {
+        const inp = document.getElementById('spell-in');
+        inp.onkeydown = (e) => { if(e.key==='Enter') check(); };
+        speak(curQ.w); setTimeout(()=>inp.focus(), 400);
+    }
+};
 
-/* 16-bit 經驗值條 */
-.exp-bg { width: 100%; height: 14px; background: #000; border: 2px solid #fff; position: relative; }
-#exp-fill { height: 100%; background: linear-gradient(to bottom, #00f2fe, #0044aa); width: 0%; }
-
-/* 讓 SVG 點陣絕對銳利 */
-svg { image-rendering: pixelated; }
-
-/* 漂浮動畫 */
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+// ...其餘代碼 (AVATARS, init, saveGame, check, showStoryList) 請保留上一版本的內容 ...
