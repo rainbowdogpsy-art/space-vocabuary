@@ -1,99 +1,45 @@
+/* style.css - 16-bit 旗艦優化版 */
 :root {
     --bg: #0d1117;
     --neon: #00f2fe;
     --accent: #ff00de;
-    --window-bg: rgba(20, 20, 45, 0.9);
-    --pixel-border: #ffffff;
+    --window-bg: rgba(20, 20, 45, 0.95);
+    --snes-gray: #ccc;
 }
 
-/* 引入字體並套用 */
 body {
-    margin: 0;
-    background: var(--bg);
-    color: white;
-    font-family: 'Press Start 2P', cursive; /* 像素專用字體 */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-    background-image: 
-        radial-gradient(circle at center, #1b2735 0%, #090a0f 100%),
-        repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); /* 模擬掃描線 */
+    margin: 0; background: var(--bg); color: white;
+    font-family: 'Press Start 2P', cursive; /* 請確保 index.html 有引用此字體 */
+    display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden;
+    /* 16-bit 掃描線濾鏡 */
+    background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
 }
 
-/* 遊戲主容器：加上厚重的 16-bit 窗格感 */
 #game-container {
-    width: 95%;
-    max-width: 440px;
-    background: var(--window-bg);
-    border: 4px solid var(--pixel-border);
-    border-radius: 4px;
-    padding: 20px;
-    position: relative;
-    box-shadow: 
-        10px 10px 0px rgba(0,0,0,0.5), /* 復古硬陰影 */
-        inset 0 0 20px rgba(0, 242, 254, 0.2);
+    width: 95%; max-width: 440px; background: var(--window-bg);
+    border: 6px double #fff; /* 經典日系 RPG 雙框 */
+    padding: 20px; box-shadow: 10px 10px 0px #000;
 }
 
-/* 狀態列美化 */
-.header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-    border-bottom: 4px double var(--neon);
-    padding-bottom: 10px;
-}
+.header { border-bottom: 4px double var(--neon); padding-bottom: 10px; margin-bottom: 15px; }
 
-.avatar-box {
-    width: 70px;
-    height: 70px;
-    background: #000;
-    border: 3px solid #fff;
-    image-rendering: pixelated;
-    box-shadow: 4px 4px 0px #444;
-}
-
-/* 16-bit 立體按鈕樣式 */
+/* 16-bit 立體按鈕 */
 .btn-mode, .btn-opt {
-    background: #2a2a5a;
-    border: 4px solid #000;
-    border-top-color: #5a5a9a; /* 頂部亮邊，營造立體感 */
-    border-left-color: #5a5a9a;
-    color: #fff;
-    padding: 15px;
-    cursor: pointer;
-    font-size: 10px; /* 像素字體通常要小一點 */
-    line-height: 1.5;
-    margin-bottom: 10px;
-    transition: transform 0.1s;
-    box-shadow: 4px 4px 0px #000;
+    background: #3a3a7a; border: 4px solid #000;
+    border-top-color: #6a6aaa; border-left-color: #6a6aaa; /* 亮邊 */
+    color: #fff; padding: 12px; cursor: pointer; font-size: 9px;
+    box-shadow: 4px 4px 0px #000; margin-bottom: 8px;
 }
 
-.btn-mode:active, .btn-opt:active {
-    transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0px #000;
-}
+.btn-mode:active, .btn-opt:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px #000; }
 
-.btn-mode h3 { margin: 0 0 5px 0; color: var(--neon); font-size: 12px; }
-.btn-mode p { margin: 0; font-size: 8px; color: #aaa; }
+/* 16-bit 經驗值條 */
+.exp-bg { width: 100%; height: 14px; background: #000; border: 2px solid #fff; position: relative; }
+#exp-fill { height: 100%; background: linear-gradient(to bottom, #00f2fe, #0044aa); width: 0%; }
 
-/* 經驗值條：16-bit 漸層感 */
-.exp-bg {
-    width: 100%;
-    height: 12px;
-    background: #000;
-    border: 2px solid #fff;
-}
+/* 讓 SVG 點陣絕對銳利 */
+svg { image-rendering: pixelated; }
 
-#exp-fill {
-    height: 100%;
-    background: linear-gradient(to right, #0044ff, #00f2fe);
-    width: 0%;
-}
-
-/* 讓 SVG 銳利化 */
-svg {
-    image-rendering: pixelated;
-}
+/* 漂浮動畫 */
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
