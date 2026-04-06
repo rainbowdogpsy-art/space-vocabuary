@@ -1,6 +1,6 @@
-/* 太空大腦 v14.1 - 故事循序解鎖版 */
+/* 太空大腦 v14.2 - 完整修復與故事循序解鎖版 */
 
-// --- [1] Firebase & 基礎變數 (維持不變) ---
+// --- [1] Firebase 初始化 ---
 const firebaseConfig = {
     apiKey: "AIzaSyBdEDFM_zllcQM8aILmfM5cvo_Rm3ouf90",
     authDomain: "space-voc.firebaseapp.com",
@@ -16,6 +16,7 @@ const db = firebase.database();
 
 let WORDS = [], PETS = [], state = {}, wordPool = [], curQ = null, dailyC = 0, revList = [], revIdx = 0;
 
+// 32-bit 精緻頭像
 const AVATARS = {
     M: [
         `<svg viewBox="0 0 32 32"><path d="M6 4h20v4H6z" fill="#0044bb"/><path d="M4 8h24v16H4z" fill="#fbc3a8"/><path d="M8 12h4v4H8z M20 12h4v4H20z" fill="#000"/><path d="M12 13h1v1H12z M24 13h1v1H24z" fill="#fff" opacity="0.6"/><path d="M6 24h20v8H6z" fill="#000088"/></svg>`,
@@ -29,7 +30,7 @@ const AVATARS = {
     ]
 };
 
-// --- [2] 全域強制對接 ---
+// --- [2] 導航與介面功能 (掛載至 Window) ---
 
 window.showScreen = function(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -41,27 +42,6 @@ window.toHome = function() {
     window.speechSynthesis.cancel();
     showScreen('scr-menu');
     updateUI();
-};
-
-window.startMode = function(m) {
-    if(!WORDS.length) return alert("資料載入中...");
-    state.mode = m; state.egg = 0; showScreen('scr-game'); nextQ();
-};
-
-window.startReview = function() {
-    if(!WORDS.length) return alert("載入中...");
-    revList = [...WORDS].sort(() => 0.5 - Math.random()).slice(0, 10);
-    revIdx = 0; showScreen('scr-review'); renderRev();
-};
-
-window.showLeaderboard = function() {
-    showScreen('scr-rank');
-    const rs = document.getElementById('rank-list');
-    rs.innerHTML = "訊號接收中...";
-    db.ref('leaderboard').orderByChild('l').limitToLast(15).once('value', s => {
-        const dArr = []; s.forEach(c => dArr.push(c.val())); dArr.reverse();
-        rs.innerHTML = dArr.map((d,i) => `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #222; font-size:0.85em;"><span>${i+1}. ${d.n}</span><span>LV ${d.l}</span></div>`).join("");
-    });
 };
 
 window.showSettings = function() {
@@ -82,7 +62,17 @@ window.showSettings = function() {
 window.setGender = function(g) { state.gen = g; showSettings(); updateUI(); };
 window.saveSettings = function() { state.name = document.getElementById('name-in').value || "探險家"; saveGame(); toHome(); };
 
-// --- [3] 核心邏輯修正：循序解鎖 ---
+// --- [3] 遊戲與故事邏輯 (循序解鎖版) ---
+
+window.startMode = function(m) {
+    if(!WORDS.length) return alert("資料載入中...");
+    state.mode = m; state.egg = 0; showScreen('scr-game'); nextQ();
+};
+
+window.startDaily = function() {
+    if (state.lastD === new Date().toLocaleDateString()) return alert("今天挑戰過了喔！");
+    startMode("daily"); dailyC = 0;
+};
 
 window.check = function(ans) {
     const isS = state.mode === 'spelling';
@@ -91,66 +81,104 @@ window.check = function(ans) {
 
     if(inp === cor) {
         state.exp += 30; state.egg++;
-        
-        // 🥚 關鍵修正：依照順序解鎖夥伴
         if(state.egg >= 10) {
-            const nextIdx = state.pets.length; // 根據目前擁有數量決定下一個編號
+            const nextIdx = state.pets.length; 
             if (nextIdx < PETS.length) {
                 state.pets.push(nextIdx);
-                alert("🐣 發現新夥伴：" + PETS[nextIdx].n + "\n故事章節已更新！");
-            } else {
-                alert("✨ 你已集齊全宇宙 15 位小夥伴！");
-            }
+                alert("🐣 發現新夥伴：" + PETS[nextIdx].n);
+            } else { alert("✨ 已收集全體夥伴！"); }
             state.egg = 0;
         }
-    } else {
-        state.egg = 0; 
-        alert("❌ 錯誤！答案是: " + (isS ? curQ.w : curQ.m));
-    }
-
-    if(state.exp >= (state.lv * 100)) { 
-        state.lv++; 
-        alert("🆙 等級提升！探險形象進化！"); 
-    }
-    saveGame(); 
-    nextQ();
+        if(state.mode === 'daily' && ++dailyC >= 15) {
+            state.exp += 100; state.lastD = new Date().toLocaleDateString();
+            alert("🎉 任務達成！"); return toHome();
+        }
+    } else { state.egg = 0; alert("❌ 答案是: " + (isS ? curQ.w : curQ.m)); }
+    if(state.exp >= (state.lv * 100)) { state.lv++; alert("🆙 等級提升！"); }
+    saveGame(); nextQ();
 };
+
+// --- [4] 星際廣播系統 (修復 ReferenceError) ---
+
+window.startReview = function() {
+    if(!WORDS.length) return alert("載入中...");
+    revList = [...WORDS].sort(() => 0.5 - Math.random()).slice(0, 10);
+    revIdx = 0; 
+    showScreen('scr-review'); 
+    window.renderRev(); // 確保呼叫到
+};
+
+window.renderRev = function() {
+    const itm = revList[revIdx];
+    const revScr = document.getElementById('scr-review');
+    revScr.innerHTML = `
+        <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="toHome()">🏠 退出</button></div>
+        <p style="text-align:center; color:#888; font-size:0.8em; margin-bottom:10px;">廣播頻道進度: ${revIdx + 1} / 10</p>
+        <div style="background:rgba(0,0,0,0.4); padding:30px; border-radius:20px; border:1px solid var(--neon); margin:15px 0; text-align:center;">
+            <h1 style="color:var(--neon); margin:0; font-size:2.5em;">${itm.w}</h1>
+            <p style="margin-top:15px; font-size:1.4em; color:#fff;">${itm.m}</p>
+        </div>
+        <button class="btn-mode" style="width:100%;" onclick="window.nextReviewWord()">${revIdx === 9 ? '完成廣播領取經驗' : '下一個 (Next)'}</button>
+    `;
+    speak(itm.w);
+};
+
+window.nextReviewWord = function() { 
+    if (revIdx < 9) { 
+        revIdx++; 
+        window.renderRev(); 
+    } else { 
+        state.exp += 50; 
+        alert("✨ 廣播獎勵 50 EXP！"); 
+        toHome(); 
+        saveGame(); 
+    } 
+};
+
+// --- [5] 百科與排行 ---
 
 window.showStoryList = function() {
     showScreen('scr-story-list');
     const container = document.getElementById('scr-story-list');
     container.innerHTML = `<div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="toHome()">🏠 返回</button></div><h3 style="color:var(--accent); margin:15px 0;">📖 冒險故事百科</h3><div id="story-list" style="display:flex; flex-direction:column; gap:10px;"></div>`;
     const list = document.getElementById('story-list');
-    
     if (!state.pets || state.pets.length === 0) {
-        list.innerHTML = "<p style='padding:40px; color:#666; text-align:center;'>尚未開始收集，加油！</p>";
+        list.innerHTML = "<p style='padding:40px; color:#666; text-align:center;'>尚未開始收集小夥伴。</p>";
         return;
     }
-
-    // 依照 index 排序，保證故事順序
     state.pets.forEach(idx => {
         const p = PETS[idx];
         const div = document.createElement('div');
         div.style = "background:rgba(255,255,255,0.05); border-radius:15px; padding:15px; display:flex; align-items:center; gap:15px; cursor:pointer; border:1px solid #333;";
         div.onclick = () => readStory(idx);
-        div.innerHTML = `<div style="width:40px; height:40px; flex-shrink:0;">${p.s}</div><div><div style="font-weight:bold; color:var(--neon);">${p.n}</div><div style="font-size:0.7em; color:#888;">${p.b}</div></div>`;
+        div.innerHTML = `<div style="width:40px; height:40px;">${p.s}</div><div><div style="font-weight:bold; color:var(--neon);">${p.n}</div><div style="font-size:0.75em; color:#888;">${p.b}</div></div>`;
         list.appendChild(div);
     });
 };
-
-// --- [4] 基礎維護 (維持不變) ---
 
 function readStory(idx) {
     const p = PETS[idx];
     showScreen('scr-story-read');
     document.getElementById('scr-story-read').innerHTML = `
-        <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="showStoryList()">⬅️ 返回</button></div>
+        <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="window.showStoryList()">⬅️ 返回</button></div>
         <div style="width:100px; height:100px; margin:20px auto;">${p.s}</div>
         <h3 style="color:var(--neon); text-align:center;">${p.n}</h3>
-        <div style="background:rgba(0,0,0,0.4); padding:20px; border-radius:15px; line-height:1.6; font-size:0.9em; margin-top:15px; text-align:left;">${p.story}</div>
-        <button class="btn-mode" style="width:100%; margin-top:20px;" onclick="showStoryList()">我讀完了</button>
+        <div style="background:rgba(0,0,0,0.4); padding:20px; border-radius:15px; line-height:1.6; font-size:0.95em; margin-top:15px;">${p.story}</div>
+        <button class="btn-mode" style="width:100%; margin-top:20px;" onclick="window.showStoryList()">我讀完了</button>
     `;
 }
+
+window.showLeaderboard = function() {
+    showScreen('scr-rank');
+    const rs = document.getElementById('rank-list');
+    rs.innerHTML = "同步中...";
+    db.ref('leaderboard').orderByChild('l').limitToLast(15).once('value', s => {
+        const dArr = []; s.forEach(c => dArr.push(c.val())); dArr.reverse();
+        rs.innerHTML = dArr.map((d,i) => `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #222; font-size:0.85em;"><span>${i+1}. ${d.n}</span><span>LV ${d.l}</span></div>`).join("");
+    });
+};
+
+// --- [6] 系統核心 ---
 
 function updateUI() {
     const el = (id) => document.getElementById(id);
@@ -159,8 +187,7 @@ function updateUI() {
     if(el('egg-val')) el('egg-val').innerText = state.egg;
     if(el('display-name')) el('display-name').innerText = state.name;
     let tier = state.lv >= 36 ? 2 : (state.lv >= 11 ? 1 : 0);
-    const avBox = el('player-avatar');
-    if(avBox) avBox.innerHTML = AVATARS[state.gen || 'M'][tier];
+    if(el('player-avatar')) el('player-avatar').innerHTML = AVATARS[state.gen || 'M'][tier];
     const ts = ["實習生","拾荒者","搜索官","通訊員","拓荒者","單字神"];
     if(el('display-title')) el('display-title').innerText = ts[Math.min(Math.floor(state.lv/10), 5)];
 }
@@ -173,7 +200,7 @@ function nextQ() {
     gScr.innerHTML = `
         <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="toHome()">🏠 退出</button></div>
         <div style="text-align:center; padding:20px;">
-            <div style="font-size:3.5em; animation: float 3.s infinite ease-in-out;">👾</div>
+            <div style="font-size:3.5em; animation: float 3s infinite ease-in-out;">👾</div>
             <h2 style="color:var(--neon); font-size:1.8em; margin:15px 0;">${isS ? '❓❓❓' : curQ.w}</h2>
         </div>
         <div id="mcq-box" style="display:${isS ? 'none' : 'grid'}; grid-template-columns:1fr; gap:8px;"></div>
@@ -186,18 +213,18 @@ function nextQ() {
         let opts = [curQ.m];
         while(opts.length<4){ let r=WORDS[Math.floor(Math.random()*WORDS.length)].m; if(!opts.includes(r))opts.push(r); }
         opts.sort(()=>Math.random()-0.5).forEach(o => {
-            const b = document.createElement('button'); b.className = 'btn-mode'; b.innerText = o; b.onclick = () => check(o);
+            const b = document.createElement('button'); b.className = 'btn-mode'; b.innerText = o; b.onclick = () => window.check(o);
             document.getElementById('mcq-box').appendChild(b);
         });
     } else {
         const inp = document.getElementById('spell-in');
-        inp.onkeydown = (e) => { if(e.key==='Enter') check(); };
+        inp.onkeydown = (e) => { if(e.key==='Enter') window.check(); };
         speak(curQ.w); setTimeout(()=>inp.focus(), 400);
     }
 }
 
 function saveGame() {
-    localStorage.setItem("space_master_v141", JSON.stringify(state));
+    localStorage.setItem("space_master_v142", JSON.stringify(state));
     if(db) db.ref('leaderboard/' + state.id).update({ n: state.name, l: state.lv, g: state.gen });
 }
 
@@ -206,7 +233,7 @@ async function init() {
         const r = await fetch('data.json');
         const data = await r.json();
         WORDS = data.words; PETS = data.pets;
-        const s = localStorage.getItem("space_master_v141");
+        const s = localStorage.getItem("space_master_v142");
         if(s) state = JSON.parse(s);
         else state = { id: Date.now().toString(), lv: 1, exp: 0, egg: 0, pets: [], name: "探險家", gen: "M", mastered: [], lastD: "" };
         updateUI();
