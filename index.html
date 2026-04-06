@@ -3,43 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>太空單字探險家 v10.6 - 視覺修復版</title>
+    <title>太空單字探險家 v10.7 - 防崩潰修正版</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
         :root { --bg: #05050d; --neon: #00f2fe; --accent: #ff00de; --glass: rgba(20, 20, 45, 0.95); }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', "Microsoft JhengHei", sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; background-image: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%); }
-        #game-container { width: 95%; max-width: 440px; background: var(--glass); backdrop-filter: blur(15px); border-radius: 24px; padding: 20px; border: 1px solid rgba(0, 242, 254, 0.3); text-align: center; position: relative; box-shadow: 0 0 25px rgba(0,0,0,0.5); }
-        
-        /* 狀態列修復 */
+        body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; background-image: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%); }
+        #game-container { width: 95%; max-width: 440px; background: var(--glass); backdrop-filter: blur(15px); border-radius: 24px; padding: 20px; border: 1px solid rgba(0, 242, 254, 0.3); text-align: center; position: relative; }
         .header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; text-align: left; }
-        .avatar-box { width: 64px; height: 64px; background: rgba(0,0,0,0.6); border-radius: 12px; border: 2px solid var(--neon); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 15px rgba(0,242,254,0.3); overflow: hidden; }
-        .avatar-svg { width: 50px; height: 50px; image-rendering: pixelated; display: block; }
+        .avatar-box { width: 64px; height: 64px; background: rgba(0,0,0,0.6); border-radius: 12px; border: 2px solid var(--neon); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+        .avatar-svg { width: 50px; height: 50px; image-rendering: pixelated; }
         .header-content { flex-grow: 1; }
         .lv-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .lv-tag { background: linear-gradient(45deg, #ffd700, #ffa500); color: #000; padding: 2px 10px; border-radius: 50px; font-weight: bold; font-size: 0.75em; }
         .user-title { color: var(--neon); font-size: 0.75em; font-weight: bold; }
         .exp-bg { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; border: 1px solid #333; }
         #exp-fill { height: 100%; background: var(--neon); width: 0%; transition: width 0.4s; }
-
         .screen { display: none; animation: fadeIn 0.3s; }
         .active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .btn-mode { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); padding: 15px; border-radius: 15px; margin-bottom: 8px; cursor: pointer; width: 100%; color: white; transition: 0.2s; }
-        .btn-mode:hover { border-color: var(--neon); transform: translateY(-2px); background: rgba(0,242,254,0.1); }
-        .btn-mode h3 { margin: 0 0 3px 0; font-size: 1.05em; }
-        .btn-mode p { margin: 0; font-size: 0.7em; color: #aaa; }
-
+        .btn-mode:hover { border-color: var(--neon); transform: translateY(-2px); }
         .btn-opt { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; cursor: pointer; margin-bottom: 8px; width: 100%; }
-        .btn-opt:hover { background: var(--neon); color: #000; font-weight: bold; }
-        .btn-opt.active { border: 2px solid var(--accent); background: rgba(255,0,222,0.2); font-weight: bold; }
-
+        .btn-opt:hover { background: var(--neon); color: #000; }
+        .btn-opt.active { border: 2px solid var(--accent); background: rgba(255,0,222,0.2); }
         #spell-in { width: 85%; padding: 15px; font-size: 1.6em; text-align: center; border-radius: 15px; border: 2px solid var(--neon); background: #000; color: var(--neon); outline: none; }
         .back-btn { background: rgba(255,255,255,0.1); border: 1px solid #555; color: #fff; cursor: pointer; padding: 6px 15px; border-radius: 8px; font-size: 0.8em; margin-bottom: 10px; }
         .lib-list { display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; padding: 5px; text-align: left; }
         .pet-card { background: rgba(255, 255, 255, 0.08); border-radius: 15px; padding: 12px; border: 1px solid #444; display: flex; align-items: center; gap: 15px; }
-        .rank-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #333; font-size: 0.9em; }
     </style>
 </head>
 <body>
@@ -57,105 +48,76 @@
     </div>
 
     <div id="scr-menu" class="screen active">
-        <h2 style="color:var(--neon); margin-bottom:15px; text-shadow:0 0 10px var(--neon);">🐾 太空探險家 v10.6</h2>
+        <h2 style="color:var(--neon); margin-bottom:15px;">🐾 太空探險家 v10.7</h2>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
             <button class="btn-mode" onclick="showSettings()"><h3>🛰️ 角色設定</h3><p>切換形象</p></button>
-            <button class="btn-mode" onclick="showLeaderboard()"><h3>🏆 榮譽榜</h3><p>全校連線</p></button>
+            <button class="btn-mode" onclick="showLeaderboard()"><h3>🏆 榮譽榜</h3><p>雲端排名</p></button>
         </div>
-        <button id="btn-daily" class="btn-mode" onclick="startDaily()" style="background:rgba(255,215,0,0.1); border-color:#ffd700;"><h3>📅 每日挑戰</h3><p id="daily-status">雙倍經驗獎勵</p></button>
+        <button id="btn-daily" class="btn-mode" onclick="startDaily()" style="background:rgba(255,215,0,0.1); border-color:#ffd700;"><h3>📅 每日挑戰</h3><p id="daily-status">雙倍經驗</p></button>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-            <button class="btn-mode" onclick="startMode('mcq')"><h3>⚔️ 選擇題</h3><p>連擊挑戰</p></button>
-            <button class="btn-mode" onclick="startMode('spelling')"><h3>🎧 拼字戰</h3><p>累積挑戰</p></button>
+            <button class="btn-mode" onclick="startMode('mcq')"><h3>⚔️ 選擇題</h3><p>10連擊</p></button>
+            <button class="btn-mode" onclick="startMode('spelling')"><h3>🎧 拼字戰</h3><p>累積對10題</p></button>
         </div>
         <button class="btn-mode" onclick="showStoryList()"><h3>📖 故事模式</h3><p>冒險航誌</p></button>
     </div>
 
-    <div id="scr-settings" class="screen"><div style="text-align:left;"><button class="back-btn" onclick="toHome()">🏠 返回</button></div><h3 style="color:var(--neon);">角色終端</h3><p>選擇性別形象：</p><div style="display:flex; gap:10px; margin-bottom:15px;"><button id="gen-m" class="btn-opt" onclick="setGender('M')">男生形象</button><button id="gen-f" class="btn-opt" onclick="setGender('F')">女生形象</button></div><p>更改探險家名稱：</p><input type="text" id="name-in" style="background:#000; border:1px solid #444; color:#fff; padding:15px; border-radius:12px; width:80%; text-align:center;" maxlength="8" placeholder="輸入名稱..."><button class="btn-opt" style="margin-top:15px; border-color:var(--neon);" onclick="saveSettings()">確認並同步</button></div>
-    <div id="scr-game" class="screen"><div style="text-align:left;"><button class="back-btn" onclick="toHome()">🏠 退出</button></div><div id="hatch-hint" style="color:var(--neon); font-size:0.8em; margin-bottom:5px;"></div><div class="arena"><div id="monster">👾</div><h2 id="display-q"></h2></div><div id="mcq-box" style="display:flex; flex-direction:column;"></div><div id="spell-box" style="display:none;"><p id="spell-hint" style="color:var(--accent); font-weight:bold;"></p><input type="text" id="spell-in" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="請拼寫..."><p style="font-size:0.7em; color:#666; margin-top:10px;">手動輸入並按 Enter</p></div></div>
-    <div id="scr-rank" class="screen"><div style="text-align:left;"><button class="back-btn" onclick="toHome()">🏠 返回</button></div><h3 style="color:var(--neon);">🏆 全校探險榜</h3><div id="rank-list" class="lib-list">正在接收雲端訊號...</div></div>
+    <div id="scr-settings" class="screen"><div style="text-align:left;"><button class="back-btn" onclick="toHome()">🏠 返回</button></div><h3>角色終端</h3><div style="display:flex; gap:10px; margin-bottom:15px;"><button id="gen-m" class="btn-opt" onclick="setGender('M')">男生形象</button><button id="gen-f" class="btn-opt" onclick="setGender('F')">女生形象</button></div><input type="text" id="name-in" style="background:#000; border:1px solid #444; color:#fff; padding:15px; border-radius:12px; width:80%; text-align:center;" maxlength="8"><button class="btn-opt" style="margin-top:15px; border-color:var(--neon);" onclick="saveSettings()">確認同步</button></div>
+    <div id="scr-game" class="screen"><div style="text-align:left;"><button class="back-btn" onclick="toHome()">🏠 退出</button></div><div id="hatch-hint" style="color:var(--neon); font-size:0.8em; margin-bottom:5px;"></div><div class="arena"><div id="monster">👾</div><h2 id="display-q"></h2></div><div id="mcq-box" style="display:flex; flex-direction:column;"></div><div id="spell-box" style="display:none;"><p id="spell-hint" style="color:var(--accent); font-weight:bold;"></p><input type="text" id="spell-in" autocomplete="off" placeholder="請拼寫..."><p style="font-size:0.7em; color:#666; margin-top:10px;">手動輸入並按 Enter</p></div></div>
+    <div id="scr-rank" class="screen"><div style="text-align:left;"><button class="back-btn" onclick="toHome()">🏠 返回</button></div><h3>🏆 全校探險榜</h3><div id="rank-list" class="lib-list">正在接收訊號...</div></div>
     <div id="scr-story-list" class="screen"><div style="text-align:left;"><button class="back-btn" onclick="toHome()">🏠 返回</button></div><div id="story-list" class="lib-list"></div></div>
-    <div id="scr-story-read" class="screen"><div style="text-align:left;"><button class="back-btn" onclick="showStoryList()">⬅️ 返回</button></div><h3 id="story-title" style="color:var(--neon);"></h3><div id="story-content" style="background:rgba(0,0,0,0.5); padding:20px; border-radius:15px; border:1px solid var(--accent); line-height:1.6; text-align:left; font-size:0.9em; max-height:200px; overflow-y:auto;"></div></div>
+    <div id="scr-story-read" class="screen"><div style="text-align:left;"><button class="back-btn" onclick="showStoryList()">⬅️ 返回</button></div><h3 id="story-title"></h3><div id="story-content" style="background:rgba(0,0,0,0.5); padding:20px; border-radius:15px; border:1px solid var(--accent); line-height:1.6; text-align:left; font-size:0.9em; max-height:200px; overflow-y:auto;"></div></div>
 
     <div style="margin-top:10px; border-top:1px solid #333; padding-top:10px; font-size:0.8em; color:#888;">夥伴能量: <span id="egg-val">0</span> / 10</div>
 </div>
 
 <script>
-// --- Firebase Config ---
-const firebaseConfig = {
-  apiKey: "AIzaSyBdEDFM_zllcQM8aILmfM5cvo_Rm3ouf90",
-  authDomain: "space-voc.firebaseapp.com",
-  projectId: "space-voc",
-  storageBucket: "space-voc.firebasestorage.app",
-  messagingSenderId: "951077212797",
-  appId: "1:951077212797:web:c6a37bf911870277585714",
-  measurementId: "G-DTRDP4LMCG",
-  databaseURL: "https://space-voc-default-rtdb.firebaseio.com/"
-};
-
+const firebaseConfig = { apiKey: "AIzaSyBdEDFM_zllcQM8aILmfM5cvo_Rm3ouf90", authDomain: "space-voc.firebaseapp.com", projectId: "space-voc", storageBucket: "space-voc.firebasestorage.app", messagingSenderId: "951077212797", appId: "1:951077212797:web:c6a37bf911870277585714", measurementId: "G-DTRDP4LMCG", databaseURL: "https://space-voc-default-rtdb.firebaseio.com/" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// --- 視覺與夥伴資料庫 ---
 const AVATARS = {
-    M: [
-        '<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M3 2h4v5H3z" fill="#00f2fe"/><path d="M4 3h1v1H4zm1 0h1v1H5z" fill="#000"/></svg>',
-        '<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M3 2h4v5H3z" fill="#00f2fe"/><rect x="2" y="3" width="6" height="2" fill="#ff00de" opacity="0.6"/><path d="M4 8h2v2H4z" fill="#ff00de"/></svg>',
-        '<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M3 1h4v7H3z" fill="#ffd700"/><circle cx="5" cy="5" r="4" fill="none" stroke="#00f2fe" stroke-width="0.5"/></svg>'
-    ],
-    F: [
-        '<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M3 2h4v5H3z" fill="#ff77aa"/><path d="M2 2h6v2H2z" fill="#333"/><path d="M4 4h1v1H4zm1 0h1v1H5z" fill="#000"/></svg>',
-        '<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M3 2h4v5H3z" fill="#ff77aa"/><path d="M2 1h6v3H2z" fill="#ff00de" opacity="0.4"/><rect x="4" y="8" width="2" height="2" fill="#00f2fe"/></svg>',
-        '<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M3 1h4v7H3z" fill="#ffd700"/><path d="M2 1h6v2H2z" fill="#ff00de"/><circle cx="5" cy="5" r="4" fill="none" stroke="#ff00de" stroke-width="0.5"/></svg>'
-    ]
+    M: ['<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M3 2h4v5H3z" fill="#00f2fe"/><path d="M4 3h1v1H4zm1 0h1v1H5z" fill="#000"/></svg>','<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M3 2h4v5H3z" fill="#00f2fe"/><rect x="2" y="3" width="6" height="2" fill="#ff00de" opacity="0.6"/></svg>','<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M3 1h4v7H3z" fill="#ffd700"/><circle cx="5" cy="5" r="4" fill="none" stroke="#00f2fe" stroke-width="0.5"/></svg>'],
+    F: ['<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M3 2h4v5H3z" fill="#ff77aa"/><path d="M2 2h6v2H2z" fill="#333"/></svg>','<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M3 2h4v5H3z" fill="#ff77aa"/><path d="M2 1h6v3H2z" fill="#ff00de" opacity="0.4"/></svg>','<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M3 1h4v7H3z" fill="#ffd700"/><path d="M2 1h6v2H2z" fill="#ff00de"/></svg>']
 };
 
 const PETS = [
-    {n:"太陽小暖",d:"汪汪星暖男。",s:'<svg viewBox="0 0 10 10"><path d="M2 3h1v1H2zm5 0h1v1H7zm-3 4h2v1H4zm-1-3h4v4H3z" fill="#ffd700"/></svg>',story:"探險家在軌道發現了小暖，牠分享了導航星，旅程從此不孤單。"},
-    {n:"星際貓貓",d:"傲嬌領航員。",s:'<svg viewBox="0 0 10 10"><path d="M2 2h1v1H2zm5 0h1v1H7zm-5 2h6v4H2z" fill="#a020f0"/></svg>',story:"追隨小暖指引，在太空站遇見領航貓。牠正守護著紫色的罐頭星雲。"}
-];
+    {n:"太陽小暖",d:"汪汪星暖男。",s:'<svg viewBox="0 0 10 10"><path d="M2 3h1v1H2zm5 0h1v1H7zm-3 4h2v1H4zm-1-3h4v4H3z" fill="#ffd700"/></svg>',story:"探險家在軌道發現了小暖，牠分享了導航星，旅程不再孤單。"},
+    {n:"星際貓貓",d:"傲嬌領航員。",s:'<svg viewBox="0 0 10 10"><path d="M2 2h1v1H2zm5 0h1v1H7zm-5 2h6v4H2z" fill="#a020f0"/></svg>',story:"在廢棄太空站遇見領航員貓貓，牠正守護著神秘的罐頭星雲。"},
+    {n:"青晶靈",d:"能量導航員。",s:'<svg viewBox="0 0 10 10"><path d="M3 4h4v5H3z" fill="#00f2fe"/></svg>',story:"青晶靈用純淨能量重新點亮飛船核心。他說：『只要有單字，宇宙無邊界。』"}
+]; // (故事與夥伴可持續增加)
 
 const WORDS = [{w:"afternoon",m:"下午"},{w:"apple",m:"蘋果"},{w:"funny",m:"有趣的"},{w:"giraffe",m:"長頸鹿"},{w:"aunt",m:"阿姨"}];
 
 let state = { id: Date.now().toString(), lv: 1, exp: 0, egg: 0, pets: [], name: "探險家", gen: "M", mastered: [], lastD: "" };
 let wordPool = [], curQ = null, dailyC = 0;
 
-function save() { 
-    localStorage.setItem("space_master_v106", JSON.stringify(state)); 
-    db.ref('leaderboard/' + state.id).set({ n: state.name, l: state.lv, m: state.mastered.length, g: state.gen, t: Date.now() });
-}
-function load() { 
-    const s = localStorage.getItem("space_master_v106"); 
-    if(s) state = JSON.parse(s); 
-    state.gen = state.gen || "M"; // 強制修復核心
-    updateUI(); 
-}
-
+// --- [核心修正] 安全更新 UI 函式 ---
 function updateUI() {
-    document.getElementById('lv').innerText = state.lv;
-    document.getElementById('exp-val').innerText = state.exp;
-    document.getElementById('exp-fill').style.width = (state.exp % 100) + "%";
-    document.getElementById('egg-val').innerText = state.egg;
-    document.getElementById('display-name').innerText = state.name;
+    const el = (id) => document.getElementById(id);
+    if(el('lv')) el('lv').innerText = state.lv;
+    if(el('exp-val')) el('exp-val').innerText = state.exp;
+    if(el('exp-fill')) el('exp-fill').style.width = (state.exp % 100) + "%";
+    if(el('egg-val')) el('egg-val').innerText = state.egg;
+    if(el('display-name')) el('display-name').innerText = state.name;
+    
     const ts = ["實習生","拾荒者","搜索官","通訊員","拓荒者","單字神"];
-    document.getElementById('display-title').innerText = ts[Math.min(Math.floor(state.lv/10), 5)];
+    if(el('display-title')) el('display-title').innerText = ts[Math.min(Math.floor(state.lv/10), 5)];
     
-    // 頭像渲染修正
     let tier = state.lv >= 36 ? 2 : (state.lv >= 11 ? 1 : 0);
-    const avatarBox = document.getElementById('player-avatar');
-    avatarBox.innerHTML = AVATARS[state.gen || 'M'][tier];
+    const avatarBox = el('player-avatar');
+    if(avatarBox) avatarBox.innerHTML = AVATARS[state.gen || 'M'][tier];
     
-    const h = document.getElementById('hatch-hint');
-    if(state.mode==='mcq') h.innerText = "⚔️ 選擇題：答錯連擊歸零！";
-    else if(state.mode==='spelling') h.innerText = "🎧 拼字戰：累積答對10題解鎖";
+    const h = el('hatch-hint');
+    if(h) h.innerText = state.mode==='mcq' ? "⚔️ 選擇題：答錯連擊歸零！" : "🎧 拼字戰：累積答對10題解鎖";
 }
 
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 function toHome() { window.speechSynthesis.cancel(); showScreen('scr-menu'); updateUI(); }
-function showSettings() { showScreen('scr-settings'); document.getElementById('name-in').value = state.name; updateGButtons(); }
-function setGender(g) { state.gen = g; updateGButtons(); updateUI(); }
-function updateGButtons() {
-    document.getElementById('gen-m').classList.toggle('active', state.gen==='M');
-    document.getElementById('gen-f').classList.toggle('active', state.gen==='F');
+function showSettings() { showScreen('scr-settings'); document.getElementById('name-in').value = state.name; updateG(); }
+function setGender(g) { state.gen = g; updateG(); updateUI(); }
+function updateG() { 
+    if(document.getElementById('gen-m')) document.getElementById('gen-m').classList.toggle('active', state.gen==='M');
+    if(document.getElementById('gen-f')) document.getElementById('gen-f').classList.toggle('active', state.gen==='F');
 }
 function saveSettings() { state.name = document.getElementById('name-in').value || "探險家"; save(); toHome(); }
 
@@ -201,16 +163,19 @@ function check(ans) {
     if(inp === cor) {
         state.exp += 30; state.egg++; if(!state.mastered.includes(curQ.w)) state.mastered.push(curQ.w);
         if(state.mode==='daily' && ++dailyC>=15){ state.exp+=100; alert("🎉 每日挑戰完成！獎勵 100 EXP"); toHome(); save(); return; }
-        if(state.egg >= 10){ const r=Math.floor(Math.random()*PETS.length); state.pets.push(r); state.egg=0; alert(`🐣 獲得夥伴：${PETS[r].n}！`); }
+        if(state.egg >= 10){ const r=Math.floor(Math.random()*PETS.length); state.pets.push(r); state.egg=0; alert(`🐣 孵化成功：${PETS[r].n}！`); }
     } else {
         if(state.mode==='mcq' || state.mode==='daily') state.egg = 0;
         alert("❌ 正確答案: "+(isS?curQ.w:curQ.m));
     }
-    if(state.exp >= (state.lv*100)){ state.lv++; alert("🆙 RANK UP! 裝備進化了！"); }
+    if(state.exp >= (state.lv*100)){ state.lv++; alert("🆙 等級提升！"); }
     save(); updateUI(); nextQ();
 }
 
-function showStoryList() { showScreen('scr-story-list'); const list = document.getElementById('story-list'); list.innerHTML = state.pets.length ? "" : "去解鎖夥伴吧！"; [...new Set(state.pets)].sort((a,b)=>a-b).forEach(idx => { const p = PETS[idx]; const div = document.createElement('div'); div.className = 'pet-card'; div.onclick = () => { document.getElementById('story-title').innerText = p.n; document.getElementById('story-content').innerText = p.story; showScreen('scr-story-read'); }; div.innerHTML = `<h4>📖 ${p.n} 航誌</h4>`; list.appendChild(div); }); }
+function showStoryList() { showScreen('scr-story-list'); const list = document.getElementById('story-list'); list.innerHTML = state.pets.length ? "" : "去解鎖夥伴吧！"; [...new Set(state.pets)].sort((a,b)=>a-b).forEach(idx => { const p = PETS[idx]; const div = document.createElement('div'); div.className = 'pet-card'; div.onclick = () => { document.getElementById('story-title').innerText = p.n; document.getElementById('story-content').innerText = p.story; showScreen('scr-story-read'); }; div.innerHTML = `<h4>📖 ${p.n} 冒險航誌</h4>`; list.appendChild(div); }); }
+
+function save() { localStorage.setItem("space_master_v107", JSON.stringify(state)); db.ref('leaderboard/' + state.id).update({ n: state.name, l: state.lv, m: state.mastered.length, g: state.gen }); }
+function load() { const s = localStorage.getItem("space_master_v107"); if(s) state = JSON.parse(s); state.gen = state.gen || "M"; updateUI(); }
 
 document.getElementById('spell-in').onkeydown=(e)=>{if(e.key==='Enter')check();};
 window.onload=load;
