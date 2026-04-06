@@ -18,20 +18,40 @@ let WORDS = [], PETS = [], state = {}, wordPool = [], curQ = null, dailyC = 0, r
 
 const AVATARS = {
     M: [
-        // Tier 1: 藍色像素新手
-        `<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M2 1h6v1H2z M1 2h8v2H1z" fill="#00f2fe"/><path d="M2 3h6v5H2z" fill="#ffe0bd"/><path d="M3 4h1v1H3z M6 4h1v1H6z" fill="#000"/><path d="M2 8h6v2H2z" fill="#0000ff"/></svg>`,
-        // Tier 2: 護目鏡戰士
-        `<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M2 1h6v1H2z M1 2h8v2H1z" fill="#00f2fe"/><path d="M2 3h6v5H2z" fill="#ffe0bd"/><path d="M2 4h6v1H2z" fill="#ff00de" opacity="0.8"/><path d="M2 8h6v2H2z" fill="#333"/></svg>`,
-        // Tier 3: 黃金聖甲
-        `<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M1 1h8v8H1z" fill="#ffd700"/><path d="M3 3h4v4H3z" fill="#ffe0bd"/><path d="M4 4h2v1H4z" fill="#000"/></svg>`
+        // LV 1-10: 藍色像素新手 (藍髮、小眼睛、披風)
+        `<svg viewBox="0 0 10 10" class="avatar-svg">
+            <path d="M2 1h6v1H2z M1 2h8v2H1z" fill="#00f2fe"/> <path d="M2 3h6v5H2z" fill="#ffe0bd"/> <path d="M3 4h1v1H3z M6 4h1v1H6z" fill="#000"/> <path d="M2 8h6v2H2z" fill="#0000ff"/> </svg>`,
+        // LV 11-35: 戰鬥護目鏡 (增加紫色護目鏡與黑戰甲)
+        `<svg viewBox="0 0 10 10" class="avatar-svg">
+            <path d="M2 1h6v1H2z M1 2h8v2H1z" fill="#00f2fe"/>
+            <path d="M2 3h6v5H2z" fill="#ffe0bd"/>
+            <path d="M2 4h6v1H2z" fill="#ff00de" opacity="0.8"/> <path d="M3 4h1v1H3z M6 4h1v1H6z" fill="#000"/>
+            <path d="M2 8h6v2H2z" fill="#333"/>
+         </svg>`,
+        // LV 36+: 黃金聖甲 (全身發光，帶有藍色核心)
+        `<svg viewBox="0 0 10 10" class="avatar-svg">
+            <path d="M1 1h8v8H1z" fill="#ffd700"/> <path d="M3 3h4v4H3z" fill="#ffe0bd"/>
+            <path d="M4 4h2v1H4z" fill="#000"/>
+            <path d="M4 8h2v1H4z" fill="#00f2fe"/> </svg>`
     ],
     F: [
-        // Tier 1: 粉色像素少女
-        `<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M1 1h8v4H1z" fill="#ff77aa"/><path d="M2 3h6v5H2z" fill="#ffe0bd"/><path d="M3 4h1v1H3z M6 4h1v1H6z" fill="#000"/><path d="M2 8h6v2H2z" fill="#ffcc00"/></svg>`,
-        // Tier 2: 通訊耳機
-        `<svg viewBox="0 0 10 10" class="avatar-svg"><path d="M1 1h8v4H1z" fill="#ff77aa"/><path d="M0 4h1v2H0z M9 4h1v2H9z" fill="#00f2fe"/><path d="M2 3h6v5H2z" fill="#ffe0bd"/><path d="M2 8h6v2H2z" fill="#ff00de"/></svg>`,
-        // Tier 3: 虹光女皇
-        `<svg viewBox="0 0 10 10" class="avatar-svg"><circle cx="5" cy="5" r="4.5" fill="#ffd700"/><path d="M3 2h4v6H3z" fill="#ffe0bd"/><path d="M2 1h6v1H2z" fill="#ff00de"/></svg>`
+        // LV 1-10: 粉色像素少女 (長髮、蝴蝶結)
+        `<svg viewBox="0 0 10 10" class="avatar-svg">
+            <path d="M1 1h8v4H1z" fill="#ff77aa"/> <path d="M3 1h4v1H3z" fill="#ff00de"/> <path d="M2 3h6v5H2z" fill="#ffe0bd"/>
+            <path d="M3 4h1v1H3z M6 4h1v1H6z" fill="#000"/>
+            <path d="M2 8h6v2H2z" fill="#ffcc00"/>
+         </svg>`,
+        // LV 11-35: 魔法通訊耳機 (增加科技感耳機)
+        `<svg viewBox="0 0 10 10" class="avatar-svg">
+            <path d="M1 1h8v4H1z" fill="#ff77aa"/>
+            <path d="M0 4h1v2H0z M9 4h1v2H9z" fill="#00f2fe"/> <path d="M2 3h6v5H2z" fill="#ffe0bd"/>
+            <path d="M2 8h6v2H2z" fill="#ff00de"/>
+         </svg>`,
+        // LV 36+: 虹光女皇 (帶有粉色皇冠與聖光背景)
+        `<svg viewBox="0 0 10 10" class="avatar-svg">
+            <circle cx="5" cy="5" r="4.5" fill="#ffd700" opacity="0.3"/> <path d="M3 2h4v6H3z" fill="#ffe0bd"/>
+            <path d="M2 1h6v1H2z" fill="#ff00de"/> <path d="M1 3h8v2H1z" fill="#ff77aa" opacity="0.5"/>
+         </svg>`
     ]
 };
 
