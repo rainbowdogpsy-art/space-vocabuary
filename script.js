@@ -1,4 +1,4 @@
-/* 太空大腦 v14.2 - 完整修復與故事循序解鎖版 */
+/* 太空大腦 v14.3 - 函式提早掛載修復版 */
 
 // --- [1] Firebase 初始化 ---
 const firebaseConfig = {
@@ -14,6 +14,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// 遊戲變數
 let WORDS = [], PETS = [], state = {}, wordPool = [], curQ = null, dailyC = 0, revList = [], revIdx = 0;
 
 // 32-bit 精緻頭像
@@ -30,7 +31,45 @@ const AVATARS = {
     ]
 };
 
-// --- [2] 導航與介面功能 (掛載至 Window) ---
+// --- [2] 廣播系統功能 (移至前方，確保提早定義) ---
+
+window.renderRev = function() {
+    const itm = revList[revIdx];
+    const revScr = document.getElementById('scr-review');
+    if (!revScr) return;
+    revScr.innerHTML = `
+        <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="window.toHome()">🏠 退出</button></div>
+        <p style="text-align:center; color:#888; font-size:0.8em; margin-bottom:10px;">廣播頻道進度: ${revIdx + 1} / 10</p>
+        <div style="background:rgba(0,0,0,0.4); padding:30px; border-radius:20px; border:1px solid var(--neon); margin:15px 0; text-align:center;">
+            <h1 style="color:var(--neon); margin:0; font-size:2.5em;">${itm.w}</h1>
+            <p style="margin-top:15px; font-size:1.4em; color:#fff;">${itm.m}</p>
+        </div>
+        <button class="btn-mode" style="width:100%;" onclick="window.nextReviewWord()">${revIdx === 9 ? '完成廣播領取經驗' : '下一個 (Next)'}</button>
+    `;
+    window.speak(itm.w);
+};
+
+window.startReview = function() {
+    if(!WORDS.length) return alert("資料庫載入中...");
+    revList = [...WORDS].sort(() => 0.5 - Math.random()).slice(0, 10);
+    revIdx = 0; 
+    window.showScreen('scr-review'); 
+    window.renderRev(); 
+};
+
+window.nextReviewWord = function() { 
+    if (revIdx < 9) { 
+        revIdx++; 
+        window.renderRev(); 
+    } else { 
+        state.exp += 50; 
+        alert("✨ 廣播獎勵 50 EXP！"); 
+        window.toHome(); 
+        saveGame(); 
+    } 
+};
+
+// --- [3] 導航與介面 ---
 
 window.showScreen = function(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -40,38 +79,38 @@ window.showScreen = function(id) {
 
 window.toHome = function() {
     window.speechSynthesis.cancel();
-    showScreen('scr-menu');
+    window.showScreen('scr-menu');
     updateUI();
 };
 
 window.showSettings = function() {
     const setScr = document.getElementById('scr-settings');
     setScr.innerHTML = `
-        <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="toHome()">🏠 返回</button></div>
+        <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="window.toHome()">🏠 返回</button></div>
         <h3 style="color:var(--neon); margin:20px 0;">🛰️ 角色設定</h3>
         <div class="menu-grid">
-            <button class="btn-mode ${state.gen==='M'?'active':''}" onclick="setGender('M')">男生形象</button>
-            <button class="btn-mode ${state.gen==='F'?'active':''}" onclick="setGender('F')">女生形象</button>
+            <button class="btn-mode ${state.gen==='M'?'active':''}" onclick="window.setGender('M')">男生形象</button>
+            <button class="btn-mode ${state.gen==='F'?'active':''}" onclick="window.setGender('F')">女生形象</button>
         </div>
         <input type="text" id="name-in" style="width:100%; background:rgba(0,0,0,0.5); border:1px solid #555; color:#fff; padding:15px; border-radius:12px; box-sizing:border-box; text-align:center; margin:15px 0;" value="${state.name}">
-        <button class="btn-mode" style="width:100%; border-color:var(--neon);" onclick="saveSettings()">確認同步</button>
+        <button class="btn-mode" style="width:100%; border-color:var(--neon);" onclick="window.saveSettings()">確認同步</button>
     `;
-    showScreen('scr-settings');
+    window.showScreen('scr-settings');
 };
 
-window.setGender = function(g) { state.gen = g; showSettings(); updateUI(); };
-window.saveSettings = function() { state.name = document.getElementById('name-in').value || "探險家"; saveGame(); toHome(); };
+window.setGender = function(g) { state.gen = g; window.showSettings(); updateUI(); };
+window.saveSettings = function() { state.name = document.getElementById('name-in').value || "探險家"; saveGame(); window.toHome(); };
 
-// --- [3] 遊戲與故事邏輯 (循序解鎖版) ---
+// --- [4] 遊戲邏輯 (故事循序解鎖) ---
 
 window.startMode = function(m) {
-    if(!WORDS.length) return alert("資料載入中...");
-    state.mode = m; state.egg = 0; showScreen('scr-game'); nextQ();
+    if(!WORDS.length) return alert("資料庫載入中...");
+    state.mode = m; state.egg = 0; window.showScreen('scr-game'); nextQ();
 };
 
 window.startDaily = function() {
     if (state.lastD === new Date().toLocaleDateString()) return alert("今天挑戰過了喔！");
-    startMode("daily"); dailyC = 0;
+    window.startMode("daily"); dailyC = 0;
 };
 
 window.check = function(ans) {
@@ -91,56 +130,17 @@ window.check = function(ans) {
         }
         if(state.mode === 'daily' && ++dailyC >= 15) {
             state.exp += 100; state.lastD = new Date().toLocaleDateString();
-            alert("🎉 任務達成！"); return toHome();
+            alert("🎉 任務達成！"); return window.toHome();
         }
     } else { state.egg = 0; alert("❌ 答案是: " + (isS ? curQ.w : curQ.m)); }
     if(state.exp >= (state.lv * 100)) { state.lv++; alert("🆙 等級提升！"); }
     saveGame(); nextQ();
 };
 
-// --- [4] 星際廣播系統 (修復 ReferenceError) ---
-
-window.startReview = function() {
-    if(!WORDS.length) return alert("載入中...");
-    revList = [...WORDS].sort(() => 0.5 - Math.random()).slice(0, 10);
-    revIdx = 0; 
-    showScreen('scr-review'); 
-    window.renderRev(); // 確保呼叫到
-};
-
-window.renderRev = function() {
-    const itm = revList[revIdx];
-    const revScr = document.getElementById('scr-review');
-    revScr.innerHTML = `
-        <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="toHome()">🏠 退出</button></div>
-        <p style="text-align:center; color:#888; font-size:0.8em; margin-bottom:10px;">廣播頻道進度: ${revIdx + 1} / 10</p>
-        <div style="background:rgba(0,0,0,0.4); padding:30px; border-radius:20px; border:1px solid var(--neon); margin:15px 0; text-align:center;">
-            <h1 style="color:var(--neon); margin:0; font-size:2.5em;">${itm.w}</h1>
-            <p style="margin-top:15px; font-size:1.4em; color:#fff;">${itm.m}</p>
-        </div>
-        <button class="btn-mode" style="width:100%;" onclick="window.nextReviewWord()">${revIdx === 9 ? '完成廣播領取經驗' : '下一個 (Next)'}</button>
-    `;
-    speak(itm.w);
-};
-
-window.nextReviewWord = function() { 
-    if (revIdx < 9) { 
-        revIdx++; 
-        window.renderRev(); 
-    } else { 
-        state.exp += 50; 
-        alert("✨ 廣播獎勵 50 EXP！"); 
-        toHome(); 
-        saveGame(); 
-    } 
-};
-
-// --- [5] 百科與排行 ---
-
 window.showStoryList = function() {
-    showScreen('scr-story-list');
+    window.showScreen('scr-story-list');
     const container = document.getElementById('scr-story-list');
-    container.innerHTML = `<div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="toHome()">🏠 返回</button></div><h3 style="color:var(--accent); margin:15px 0;">📖 冒險故事百科</h3><div id="story-list" style="display:flex; flex-direction:column; gap:10px;"></div>`;
+    container.innerHTML = `<div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="window.toHome()">🏠 返回</button></div><h3 style="color:var(--accent); margin:15px 0;">📖 冒險故事百科</h3><div id="story-list" style="display:flex; flex-direction:column; gap:10px;"></div>`;
     const list = document.getElementById('story-list');
     if (!state.pets || state.pets.length === 0) {
         list.innerHTML = "<p style='padding:40px; color:#666; text-align:center;'>尚未開始收集小夥伴。</p>";
@@ -158,7 +158,7 @@ window.showStoryList = function() {
 
 function readStory(idx) {
     const p = PETS[idx];
-    showScreen('scr-story-read');
+    window.showScreen('scr-story-read');
     document.getElementById('scr-story-read').innerHTML = `
         <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="window.showStoryList()">⬅️ 返回</button></div>
         <div style="width:100px; height:100px; margin:20px auto;">${p.s}</div>
@@ -169,7 +169,7 @@ function readStory(idx) {
 }
 
 window.showLeaderboard = function() {
-    showScreen('scr-rank');
+    window.showScreen('scr-rank');
     const rs = document.getElementById('rank-list');
     rs.innerHTML = "同步中...";
     db.ref('leaderboard').orderByChild('l').limitToLast(15).once('value', s => {
@@ -178,7 +178,7 @@ window.showLeaderboard = function() {
     });
 };
 
-// --- [6] 系統核心 ---
+// --- [5] 系統核心與工具 ---
 
 function updateUI() {
     const el = (id) => document.getElementById(id);
@@ -187,7 +187,8 @@ function updateUI() {
     if(el('egg-val')) el('egg-val').innerText = state.egg;
     if(el('display-name')) el('display-name').innerText = state.name;
     let tier = state.lv >= 36 ? 2 : (state.lv >= 11 ? 1 : 0);
-    if(el('player-avatar')) el('player-avatar').innerHTML = AVATARS[state.gen || 'M'][tier];
+    const avBox = el('player-avatar');
+    if(avBox) avBox.innerHTML = AVATARS[state.gen || 'M'][tier];
     const ts = ["實習生","拾荒者","搜索官","通訊員","拓荒者","單字神"];
     if(el('display-title')) el('display-title').innerText = ts[Math.min(Math.floor(state.lv/10), 5)];
 }
@@ -198,7 +199,7 @@ function nextQ() {
     const isS = state.mode === 'spelling';
     const gScr = document.getElementById('scr-game');
     gScr.innerHTML = `
-        <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="toHome()">🏠 退出</button></div>
+        <div style="text-align:left;"><button class="btn-mode" style="padding:5px 15px;" onclick="window.toHome()">🏠 退出</button></div>
         <div style="text-align:center; padding:20px;">
             <div style="font-size:3.5em; animation: float 3s infinite ease-in-out;">👾</div>
             <h2 style="color:var(--neon); font-size:1.8em; margin:15px 0;">${isS ? '❓❓❓' : curQ.w}</h2>
@@ -219,12 +220,12 @@ function nextQ() {
     } else {
         const inp = document.getElementById('spell-in');
         inp.onkeydown = (e) => { if(e.key==='Enter') window.check(); };
-        speak(curQ.w); setTimeout(()=>inp.focus(), 400);
+        window.speak(curQ.w); setTimeout(()=>inp.focus(), 400);
     }
 }
 
 function saveGame() {
-    localStorage.setItem("space_master_v142", JSON.stringify(state));
+    localStorage.setItem("space_master_v143", JSON.stringify(state));
     if(db) db.ref('leaderboard/' + state.id).update({ n: state.name, l: state.lv, g: state.gen });
 }
 
@@ -233,12 +234,14 @@ async function init() {
         const r = await fetch('data.json');
         const data = await r.json();
         WORDS = data.words; PETS = data.pets;
-        const s = localStorage.getItem("space_master_v142");
+        const s = localStorage.getItem("space_master_v143");
         if(s) state = JSON.parse(s);
         else state = { id: Date.now().toString(), lv: 1, exp: 0, egg: 0, pets: [], name: "探險家", gen: "M", mastered: [], lastD: "" };
         updateUI();
     } catch (e) { console.error(e); }
 }
 
-function speak(t){ window.speechSynthesis.cancel(); const m=new SpeechSynthesisUtterance(t); m.lang='en-US'; m.rate=0.85; window.speechSynthesis.speak(m); }
+window.speak = function(t){ window.speechSynthesis.cancel(); const m=new SpeechSynthesisUtterance(t); m.lang='en-US'; m.rate=0.85; window.speechSynthesis.speak(m); };
+
 window.onload = init;
+console.log("🚀 16-bit 太空船大腦 v14.3 載入完成！");
