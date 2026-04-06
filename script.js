@@ -17,43 +17,106 @@ const db = firebase.database();
 let WORDS = [], PETS = [], state = {}, wordPool = [], curQ = null, dailyC = 0, revList = [], revIdx = 0;
 
 const AVATARS = {
-    M: [
-        // LV 1-10: 藍色像素新手 (藍髮、小眼睛、披風)
-        `<svg viewBox="0 0 10 10" class="avatar-svg">
-            <path d="M2 1h6v1H2z M1 2h8v2H1z" fill="#00f2fe"/> <path d="M2 3h6v5H2z" fill="#ffe0bd"/> <path d="M3 4h1v1H3z M6 4h1v1H6z" fill="#000"/> <path d="M2 8h6v2H2z" fill="#0000ff"/> </svg>`,
-        // LV 11-35: 戰鬥護目鏡 (增加紫色護目鏡與黑戰甲)
-        `<svg viewBox="0 0 10 10" class="avatar-svg">
-            <path d="M2 1h6v1H2z M1 2h8v2H1z" fill="#00f2fe"/>
-            <path d="M2 3h6v5H2z" fill="#ffe0bd"/>
-            <path d="M2 4h6v1H2z" fill="#ff00de" opacity="0.8"/> <path d="M3 4h1v1H3z M6 4h1v1H6z" fill="#000"/>
-            <path d="M2 8h6v2H2z" fill="#333"/>
-         </svg>`,
-        // LV 36+: 黃金聖甲 (全身發光，帶有藍色核心)
-        `<svg viewBox="0 0 10 10" class="avatar-svg">
-            <path d="M1 1h8v8H1z" fill="#ffd700"/> <path d="M3 3h4v4H3z" fill="#ffe0bd"/>
-            <path d="M4 4h2v1H4z" fill="#000"/>
-            <path d="M4 8h2v1H4z" fill="#00f2fe"/> </svg>`
-    ],
-    F: [
-        // LV 1-10: 粉色像素少女 (長髮、蝴蝶結)
-        `<svg viewBox="0 0 10 10" class="avatar-svg">
-            <path d="M1 1h8v4H1z" fill="#ff77aa"/> <path d="M3 1h4v1H3z" fill="#ff00de"/> <path d="M2 3h6v5H2z" fill="#ffe0bd"/>
-            <path d="M3 4h1v1H3z M6 4h1v1H6z" fill="#000"/>
-            <path d="M2 8h6v2H2z" fill="#ffcc00"/>
-         </svg>`,
-        // LV 11-35: 魔法通訊耳機 (增加科技感耳機)
-        `<svg viewBox="0 0 10 10" class="avatar-svg">
-            <path d="M1 1h8v4H1z" fill="#ff77aa"/>
-            <path d="M0 4h1v2H0z M9 4h1v2H9z" fill="#00f2fe"/> <path d="M2 3h6v5H2z" fill="#ffe0bd"/>
-            <path d="M2 8h6v2H2z" fill="#ff00de"/>
-         </svg>`,
-        // LV 36+: 虹光女皇 (帶有粉色皇冠與聖光背景)
-        `<svg viewBox="0 0 10 10" class="avatar-svg">
-            <circle cx="5" cy="5" r="4.5" fill="#ffd700" opacity="0.3"/> <path d="M3 2h4v6H3z" fill="#ffe0bd"/>
-            <path d="M2 1h6v1H2z" fill="#ff00de"/> <path d="M1 3h8v2H1z" fill="#ff77aa" opacity="0.5"/>
-         </svg>`
-    ]
-};
+:root {
+    --bg: #0d1117;
+    --neon: #00f2fe;
+    --accent: #ff00de;
+    --window-bg: rgba(20, 20, 45, 0.9);
+    --pixel-border: #ffffff;
+}
+
+/* 引入字體並套用 */
+body {
+    margin: 0;
+    background: var(--bg);
+    color: white;
+    font-family: 'Press Start 2P', cursive; /* 像素專用字體 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    background-image: 
+        radial-gradient(circle at center, #1b2735 0%, #090a0f 100%),
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px); /* 模擬掃描線 */
+}
+
+/* 遊戲主容器：加上厚重的 16-bit 窗格感 */
+#game-container {
+    width: 95%;
+    max-width: 440px;
+    background: var(--window-bg);
+    border: 4px solid var(--pixel-border);
+    border-radius: 4px;
+    padding: 20px;
+    position: relative;
+    box-shadow: 
+        10px 10px 0px rgba(0,0,0,0.5), /* 復古硬陰影 */
+        inset 0 0 20px rgba(0, 242, 254, 0.2);
+}
+
+/* 狀態列美化 */
+.header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    border-bottom: 4px double var(--neon);
+    padding-bottom: 10px;
+}
+
+.avatar-box {
+    width: 70px;
+    height: 70px;
+    background: #000;
+    border: 3px solid #fff;
+    image-rendering: pixelated;
+    box-shadow: 4px 4px 0px #444;
+}
+
+/* 16-bit 立體按鈕樣式 */
+.btn-mode, .btn-opt {
+    background: #2a2a5a;
+    border: 4px solid #000;
+    border-top-color: #5a5a9a; /* 頂部亮邊，營造立體感 */
+    border-left-color: #5a5a9a;
+    color: #fff;
+    padding: 15px;
+    cursor: pointer;
+    font-size: 10px; /* 像素字體通常要小一點 */
+    line-height: 1.5;
+    margin-bottom: 10px;
+    transition: transform 0.1s;
+    box-shadow: 4px 4px 0px #000;
+}
+
+.btn-mode:active, .btn-opt:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px #000;
+}
+
+.btn-mode h3 { margin: 0 0 5px 0; color: var(--neon); font-size: 12px; }
+.btn-mode p { margin: 0; font-size: 8px; color: #aaa; }
+
+/* 經驗值條：16-bit 漸層感 */
+.exp-bg {
+    width: 100%;
+    height: 12px;
+    background: #000;
+    border: 2px solid #fff;
+}
+
+#exp-fill {
+    height: 100%;
+    background: linear-gradient(to right, #0044ff, #00f2fe);
+    width: 0%;
+}
+
+/* 讓 SVG 銳利化 */
+svg {
+    image-rendering: pixelated;
+}
+
 
 // --- [3] 核心功能 (宣告在最外層，確保 HTML 點得到) ---
 
