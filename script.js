@@ -156,13 +156,33 @@ function readStory(idx) {
     `;
 }
 
+// --- script.js 修正版 window.showLeaderboard ---
+
 window.showLeaderboard = function() {
     window.showScreen('scr-rank');
     const rs = document.getElementById('rank-list');
-    rs.innerHTML = "同步中...";
+    
+    // 防禦性檢查：如果找不到盒子，就先不執行後面，避免噴錯
+    if (!rs) {
+        console.error("錯誤：HTML 遺失了 id='rank-list' 的容器！");
+        return;
+    }
+
+    rs.innerHTML = "訊號同步中...";
+    
+    // 從 Firebase 抓取資料
     db.ref('leaderboard').orderByChild('l').limitToLast(15).once('value', s => {
-        const dArr = []; s.forEach(c => dArr.push(c.val())); dArr.reverse();
-        rs.innerHTML = dArr.map((d,i) => `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #222; font-size:0.85em;"><span>${i+1}. ${d.n}</span><span>LV ${d.l}</span></div>`).join("");
+        const dArr = []; 
+        s.forEach(c => dArr.push(c.val())); 
+        dArr.reverse();
+
+        // 渲染清單
+        rs.innerHTML = dArr.map((d, i) => `
+            <div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #222; font-size:0.85em; background:rgba(255,255,255,0.03); margin-bottom:5px; border-radius:8px;">
+                <span>${i + 1}. ${d.n || '無名探險家'}</span>
+                <span style="color:var(--neon);">LV ${d.l || 1}</span>
+            </div>
+        `).join("");
     });
 };
 
