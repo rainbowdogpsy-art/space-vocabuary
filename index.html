@@ -2,42 +2,41 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>太空單字探險家 v12.0 - 模組化旗艦版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>太空單字探險家 v14.0 - 32-bit 精裝版</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="game-container">
         <div class="header">
             <div id="player-avatar" class="avatar-box"></div>
-            <div class="header-content">
-                <div class="lv-info">
-                    <div><span class="lv-tag">RANK LV <span id="lv">1</span></span><div id="display-title" class="user-title">探險成員</div></div>
-                    <span id="display-name" style="font-size:0.85em; font-weight:bold;">載入中...</span>
+            <div class="header-info">
+                <div class="lv-row">
+                    <span class="lv-tag">LV <span id="lv">1</span></span>
+                    <span id="display-title" class="user-title">探險成員</span>
                 </div>
+                <div id="display-name">探險家</div>
                 <div class="exp-bg"><div id="exp-fill"></div></div>
             </div>
         </div>
 
         <div id="screens">
             <div id="scr-menu" class="screen active">
-                <h2 style="color:var(--neon); margin:10px 0;">🐾 探險家 v12.0</h2>
-                <button class="btn-mode" onclick="showStoryList()" style="border-color:var(--accent);"><h3>📖 冒險百科</h3><p>查看 15 位夥伴人設與故事</p></button>
-                <button class="btn-mode" onclick="startReview()"><h3>📡 星際廣播</h3><p>單字複習獲得獎勵經驗</p></button>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                    <button class="btn-mode" onclick="showSettings()"><h3>🛰️ 角色設定</h3><p>形象更換</p></button>
-                    <button class="btn-mode" onclick="showLeaderboard()"><h3>🏆 榮譽榜</h3><p>全校排行</p></button>
+                <h2 style="color:#00f2fe; margin:10px 0; font-size:1.2em;">🐾 探險終端 v14.0</h2>
+                <div class="menu-grid">
+                    <button class="btn-mode" onclick="window.showStoryList()">📖 冒險百科</button>
+                    <button class="btn-mode" onclick="window.startReview()">📡 星際廣播</button>
+                    <button class="btn-mode" onclick="window.showSettings()">🛰️ 角色設定</button>
+                    <button class="btn-mode" onclick="window.showLeaderboard()">🏆 榮譽榜</button>
                 </div>
-                <button id="btn-daily" class="btn-mode" onclick="startDaily()" style="background:rgba(255,215,0,0.1); border-color:#ffd700;"><h3>📅 每日挑戰</h3><p id="daily-status">雙倍經驗獎勵</p></button>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                    <button class="btn-mode" onclick="startMode('mcq')"><h3>⚔️ 選擇題</h3><p>連擊挑戰</p></button>
-                    <button class="btn-mode" onclick="startMode('spelling')"><h3>🎧 拼字戰</h3><p>累積解鎖</p></button>
+                <button id="btn-daily" class="btn-daily" onclick="window.startDaily()">📅 每日挑戰 (雙倍經驗)</button>
+                <div class="menu-grid">
+                    <button class="btn-game" onclick="window.startMode('mcq')">⚔️ 選擇題</button>
+                    <button class="btn-game" onclick="window.startMode('spelling')">🎧 拼字戰</button>
                 </div>
             </div>
-
             <div id="scr-settings" class="screen"></div>
             <div id="scr-game" class="screen"></div>
             <div id="scr-rank" class="screen"></div>
@@ -45,10 +44,8 @@
             <div id="scr-story-read" class="screen"></div>
             <div id="scr-review" class="screen"></div>
         </div>
-
-        <div id="footer-egg" style="margin-top:10px; border-top:1px solid #333; padding-top:10px; font-size:0.8em; color:#888;">夥伴能量: <span id="egg-val">0</span> / 10</div>
+        <div id="footer-egg">夥伴能量: <span id="egg-val">0</span> / 10</div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
