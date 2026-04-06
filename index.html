@@ -133,4 +133,111 @@ const PETS = [
     {n: "萌翠種子", d: "草系夥伴，將知識轉化為森林之力。", s: '<svg class="pet-svg" viewBox="0 0 10 10"><path d="M4 8h2V5H4zm-1-3h4v1H3zm2-3h1v2H5z" fill="#32cd32"/></svg>', story: "【冒險 0-8：綠色星球】種子開花並釋放純淨氧氣，牠指引大家前往極寒之地，尋找失傳已久的最後防衛核心。"},
     {n: "冰晶企鵝", d: "冷靜守衛，守護星系防衛核心。", s: '<svg class="pet-svg" viewBox="0 0 10 10"><path d="M3 3h4v6H3z" fill="#1e90ff"/><path d="M4 4h1v1H4zm1 0h1v1H5z" fill="#fff"/></svg>', story: "【冒險 0-9：極低溫保存】企鵝原以為探險家是掠奪者，直到看見種子開出的友誼之花。企鵝卸下武裝加入了你們。"},
     {n: "金屬巨蟹", d: "最強盾牌，能擊碎空間壓力。", s: '<svg class="pet-svg" viewBox="0 0 10 10"><path d="M2 5h6v3H2zM1 4h2v1H1zm6 0h2v1H7z" fill="#ff4500"/></svg>', story: "【冒險 0-10：鋼鐵守衛】當黑洞壓力席捲而來，金屬巨蟹挺身而出，形成最強盾牌。原來所有夥伴集結都是為了這天。"},
-    {n: "幻影蝶影", d: "能穿梭夢境，引導靈魂能量。", s: '<svg class="pet-svg" viewBox="0 0 10 10"><path d="M2 3h2v4H2zM6 3h2v4H6zM4
+    {n: "幻影蝶影", d: "能穿梭夢境，引導靈魂能量。", s: '<svg class="pet-svg" viewBox="0 0 10 10"><path d="M2 3h2v4H2zM6 3h2v4H6zM4 4h2v2H4z" fill="#ff00de"/></svg>', story: "【冒險 0-11：維度裂縫】幻影蝶影在裂縫中閃現，揭示了一條通往『單字聖殿』的隱藏路徑。"},
+    {n: "烈焰龍龍", d: "新維度的守護神，擁有燃燒鬥志。", s: '<svg class="pet-svg" viewBox="0 0 10 10"><path d="M2 5h6v4H2zM4 2h2v3H4z" fill="#ff4500"/><path d="M3 6h1v1H3zm3 0h1v1H6z" fill="white"/></svg>', story: "【冒險 0-12：烈焰試煉】唯有證明單字量與鬥志，才能獲得牠的認可。龍龍最後被大家的默契感動。"},
+    {n: "時空發條", d: "精準無比，負責修正時間漏洞。", s: '<svg class="pet-svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#cd7f32"/><path d="M5 3v2h2" stroke="white" fill="none"/></svg>', story: "【冒險 0-13：時空修正】新維度時間混亂。依靠發條的精準計時，探險隊才能在正確瞬間進入聖殿。"},
+    {n: "智慧梟梟", d: "古老紀錄官，知曉全宇宙單字。", s: '<svg class="pet-svg" viewBox="0 0 10 10"><path d="M3 3h4v6H3z" fill="#708090"/><path d="M4 4h1v1H4zm1 0h1v1H5z" fill="yellow"/></svg>', story: "【冒險 0-14：遠古圖書館】智慧梟梟說：『文字是文明火種，每一個夥伴都是通往終極智慧的鑰匙。』"},
+    {n: "虹光獨角獸", d: "奇蹟與和平象徵，聖殿最終引導。", s: '<svg class="pet-svg" viewBox="0 0 10 10"><path d="M3 4h4v5H3zM4 2h1v2H4z" fill="#e0ffff"/><path d="M4 2h1v1H4z" fill="#ffd700"/></svg>', story: "【冒險 0-15：智慧之光】聖殿光芒衝雲霄，獨角獸祝賀探險隊達成偉大成就。現在，你們是真正的單字大師！"}
+];
+
+let state = { lv: 1, exp: 0, egg: 0, pets: [], mode: "", mastered: [], lastD: "", name: "探險家" };
+let curQ = null, dailyC = 0;
+
+function save() { localStorage.setItem("space_master_v7_5", JSON.stringify(state)); }
+function load() { 
+    const s = localStorage.getItem("space_master_v7_5");
+    if(s) state = JSON.parse(s);
+    checkDaily(); updateUI();
+}
+
+function getTitle(lv) {
+    if(lv < 6) return "萌新實習生"; if(lv < 11) return "宇宙拾荒者"; if(lv < 21) return "單字搜索官";
+    if(lv < 36) return "銀河通訊員"; if(lv < 51) return "星際拓荒者"; return "終極單字神";
+}
+
+function updateUI() {
+    document.getElementById('lv').innerText = state.lv;
+    document.getElementById('exp-val').innerText = state.exp;
+    document.getElementById('exp-fill').style.width = (state.exp % 100) + "%";
+    document.getElementById('egg-val').innerText = state.egg;
+    document.getElementById('display-name').innerText = state.name;
+    document.getElementById('display-title').innerText = getTitle(state.lv);
+}
+
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function toHome() { window.speechSynthesis.cancel(); showScreen('scr-menu'); checkDaily(); updateUI(); }
+
+// --- 角色設定 ---
+function showSettings() { showScreen('scr-settings'); document.getElementById('name-in').value = state.name; }
+function updateName() { state.name = document.getElementById('name-in').value || "探險家"; alert("名稱已同步至終端！"); save(); toHome(); }
+
+// --- 每日挑戰 ---
+function checkDaily() { const t = new Date().toLocaleDateString(); if(state.lastD === t) { document.getElementById('btn-daily').style.opacity = "0.5"; document.getElementById('daily-status').innerText = "今日已達成。"; document.getElementById('btn-daily').onclick = null; } }
+function startDaily() { state.mode = "daily"; dailyC = 0; state.egg = 0; showScreen('scr-game'); document.getElementById('mode-title').innerText = "📅 每日挑戰 (0/15)"; nextQ(); }
+
+function showLeaderboard() {
+    showScreen('scr-rank');
+    const fake = [{n:"彩虹狗狗老師",l:99,m:300}, {n:state.name,l:state.lv,m:state.mastered.length}, {n:"五峰霸主",l:25,m:120}].sort((a,b)=>b.l-a.l);
+    document.getElementById('rank-list').innerHTML = fake.map((d,i)=>`<div class="rank-item"><span>${i+1}. ${d.n}</span><span>LV ${d.l} (${d.m}詞)</span></div>`).join("");
+}
+
+function startMode(m) { state.mode = m; state.egg = 0; showScreen('scr-game'); document.getElementById('mode-title').innerText = m==='mcq'?"⚔️ 選擇題":"🎧 拼字戰"; document.getElementById('mcq-box').style.display = m==='mcq'?'flex':'none'; document.getElementById('spell-box').style.display = m==='spelling'?'block':'none'; nextQ(); }
+
+function showLibrary() {
+    showScreen('scr-lib'); const list = document.getElementById('lib-list'); list.innerHTML = "";
+    state.pets.forEach(idx => {
+        const p = PETS[idx]; const div = document.createElement('div'); div.className = 'pet-card';
+        div.innerHTML = `<div class="pet-img-box">${p.s}</div><div class="pet-info"><h4>${p.n}</h4><p>${p.d}</p></div>`;
+        list.appendChild(div);
+    });
+}
+
+function showStoryList() {
+    showScreen('scr-story-list'); const list = document.getElementById('story-list'); list.innerHTML = "";
+    [...new Set(state.pets)].forEach(idx => {
+        const p = PETS[idx]; const div = document.createElement('div'); div.className = 'pet-card'; div.style.cursor="pointer";
+        div.onclick = () => { document.getElementById('story-title').innerText = p.n; document.getElementById('story-content').innerText = p.story; showScreen('scr-story-read'); };
+        div.innerHTML = `<div class="pet-img-box">${p.s}</div><div class="pet-info"><h4>${p.n} 航誌</h4><p>解鎖冒險史詩...</p></div>`;
+        list.appendChild(div);
+    });
+}
+
+function startReview() { showScreen('scr-review'); /* 複習邏輯... */ }
+
+function nextQ() {
+    curQ = WORDS[Math.floor(Math.random() * WORDS.length)];
+    document.getElementById('display-q').innerText = (state.mode==='mcq' || state.mode==='daily')?curQ.w:"❓❓❓";
+    if(state.mode==='mcq'||state.mode==='daily') renderMCQ();
+    else { document.getElementById('mcq-box').innerHTML=""; document.getElementById('spell-hint').innerText=curQ.m; document.getElementById('spell-in').value=""; speak(curQ.w); setTimeout(()=>document.getElementById('spell-in').focus(),300); }
+    updateUI();
+}
+
+function renderMCQ() {
+    let opts = [curQ.m]; while(opts.length<4){ let r = WORDS[Math.floor(Math.random()*WORDS.length)].m; if(!opts.includes(r))opts.push(r);}
+    opts.sort(()=>Math.random()-0.5); const box=document.getElementById('mcq-box'); box.innerHTML="";
+    opts.forEach(o=>{ const b=document.createElement('button'); b.className='btn-opt'; b.innerText=o; b.onclick=()=>check(o); box.appendChild(b);});
+}
+
+function speak(t){ window.speechSynthesis.cancel(); const m=new SpeechSynthesisUtterance(t); m.lang='en-US'; window.speechSynthesis.speak(m); }
+
+function check(ans) {
+    const isS = state.mode === 'spelling'; const cor = isS ? curQ.w.toLowerCase() : curQ.m;
+    const inp = isS ? document.getElementById('spell-in').value.toLowerCase().trim() : ans;
+
+    if(inp === cor) {
+        state.exp += (state.mode==='daily'?10:30); state.egg++; if(!state.mastered.includes(curQ.w))state.mastered.push(curQ.w);
+        if(state.mode==='daily'){ dailyC++; document.getElementById('mode-title').innerText=`📅 每日挑戰 (${dailyC}/15)`; if(dailyC>=15){ state.exp+=100; state.lastD=new Date().toLocaleDateString(); alert("🎉 完成！獎勵 100 EXP，能量+3"); state.egg+=3; toHome(); save(); return;}}
+        if(state.egg>=10){ const r=Math.floor(Math.random()*PETS.length); state.pets.push(r); state.egg=0; alert(`🐣 孵化成功：${PETS[r].n}`); }
+    } else {
+        if(state.mode==='mcq') { state.egg=0; alert("❌ 連擊歸零！答案: "+curQ.m); }
+        else alert("❌ 答案: "+(isS?curQ.w:curQ.m));
+    }
+    if(state.exp >= (state.lv*100)){ state.lv++; alert("🆙 稱號晉升！已達到 LV "+state.lv); }
+    save(); updateUI(); nextQ();
+}
+
+document.getElementById('spell-in').onkeydown=(e)=>{if(e.key==='Enter')check();};
+window.onload=load;
+</script>
+</body>
+</html>
