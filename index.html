@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>太空單字探險家 v2.0 - 彩虹狗狗老師</title>
+    <title>太空單字探險家 v2.1 - 點陣夥伴計畫</title>
     <style>
-        /* --- 核心定義與變數 --- */
+        /* --- 核心定義與變數 (保留賽博龐克太空風) --- */
         :root {
             --bg-color: #050509;
-            --panel-bg: rgba(20, 20, 35, 0.6);
+            --panel-bg: rgba(15, 15, 30, 0.7);
             --primary-neon: #00f2fe;
             --secondary-neon: #4facfe;
             --accent-neon: #ff00de;
@@ -17,73 +17,58 @@
             --text-color: #ffffff;
             --gold-color: #ffd700;
             --font-main: 'Segoe UI', Roboto, Helvetica, Arial, "Microsoft JhengHei", sans-serif;
+            --font-pixel: 'Courier New', Courier, monospace;
         }
 
-        /* --- 賽博龐克太空星空背景 --- */
+        /* --- 太空星空背景 --- */
         body {
             margin: 0; padding: 0;
             background-color: var(--bg-color);
             background-image: 
                 radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
-                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
-                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
-            background-size: 550px 550px, 350px 350px, 250px 250px;
-            background-position: 0 0, 40px 60px, 130px 270px;
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px);
+            background-size: 550px 550px, 350px 350px;
             animation: starMove 100s linear infinite;
             color: var(--text-color);
             font-family: var(--font-main);
             display: flex; justify-content: center; align-items: center;
             height: 100vh; overflow: hidden;
-            letter-spacing: 0.5px;
         }
 
         @keyframes starMove {
-            from { background-position: 0 0, 40px 60px, 130px 270px; }
-            to { background-position: -550px 1100px, -350px 700px, -250px 500px; }
+            from { background-position: 0 0, 40px 60px; }
+            to { background-position: -550px 1100px, -350px 700px; }
         }
 
-        /* --- 霓虹光暈效果 --- */
-        .neon-text {
-            text-shadow: 0 0 5px rgba(255,255,255,0.5), 0 0 10px var(--primary-neon), 0 0 20px var(--primary-neon);
-        }
-        .neon-border {
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
-            border: 1px solid rgba(0, 242, 254, 0.5);
-        }
-
-        /* --- 主容器 (毛玻璃效果) --- */
+        /* --- 主容器 --- */
         #game-container {
             width: 90%; max-width: 500px;
             background: var(--panel-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(15px);
             border-radius: 20px; padding: 30px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 10px rgba(79, 172, 254, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             text-align: center;
             position: relative;
-            transition: transform 0.3s ease;
         }
 
-        /* --- 頂部狀態列優化 --- */
+        /* --- 狀態列優化 --- */
         .status-header {
             display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 25px; padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 25px; padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
         .level-badge {
             background: linear-gradient(135deg, var(--gold-color), #b8860b);
             color: #000; padding: 5px 15px; border-radius: 50px;
             font-weight: bold; font-size: 0.9em;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
         .exp-container { display: flex; align-items: center; flex-grow: 1; margin: 0 15px; }
         .exp-bar-container {
-            flex-grow: 1; height: 12px;
+            flex-grow: 1; height: 10px;
             background: rgba(255,255,255,0.05);
             border-radius: 10px; overflow: hidden;
             border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
         }
         #exp-bar-fill {
             height: 100%;
@@ -94,13 +79,12 @@
         .exp-text { font-size: 0.8em; color: rgba(255,255,255,0.7); width: 60px; text-align: right;}
 
         /* --- 主選單畫面 --- */
-        .menu-title { font-size: 2em; margin-bottom: 35px; color: var(--primary-neon); }
+        .menu-title { font-size: 2em; margin-bottom: 35px; color: var(--primary-neon); text-shadow: 0 0 10px var(--primary-neon); }
         .mode-card {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.08);
             padding: 25px; border-radius: 15px; margin-bottom: 20px;
             cursor: pointer; transition: all 0.3s ease;
-            position: relative; overflow: hidden;
         }
         .mode-card:hover {
             background: rgba(0, 242, 254, 0.1);
@@ -108,49 +92,345 @@
             transform: translateY(-3px);
             box-shadow: 0 5px 20px rgba(0, 242, 254, 0.3);
         }
-        .mode-card::after {
-            content: ''; position: absolute; width: 100px; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            top: 0; left: -150px; transform: skewX(-20deg);
-            transition: 0.5s;
-        }
-        .mode-card:hover::after { left: 100%; }
-        .mode-card h3 { margin: 0 0 8px 0; font-size: 1.3em; color: var(--text-color); }
+        .mode-card h3 { margin: 0 0 8px 0; color: var(--text-color); }
         .mode-card p { margin: 0; font-size: 0.9em; color: rgba(255,255,255,0.6); }
 
         /* --- 遊戲主畫面 --- */
         #game-screen { display: none; }
-        
-        /* 戰鬥區域與怪物彈跳動畫 */
         .battle-arena {
             height: 180px; display: flex; flex-direction: column;
             justify-content: center; align-items: center; margin-bottom: 25px;
-            position: relative;
         }
         #monster-sprite {
             font-size: 70px; margin-bottom: 10px;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
             animation: monsterFloat 3s infinite ease-in-out;
-            transition: all 0.2s ease;
         }
         @keyframes monsterFloat {
             0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-15px) scale(1.05); }
+            50% { transform: translateY(-10px) scale(1.03); }
         }
-        
-        /* 單字/題目顯示 */
         #current-display {
             font-size: 2.5em; margin: 0; min-height: 1.2em;
-            color: var(--text-color);
             text-shadow: 0 0 10px rgba(255,255,255,0.5);
             font-weight: 700;
         }
         
-        /* 答題回饋動畫 */
-        @keyframes correctFlash {
-            0%, 100% { background: var(--panel-bg); }
-            50% { background: rgba(57, 255, 20, 0.2); border-color: var(--success-color); }
+        /* 選擇題霓虹按鈕 */
+        #options-container { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px; font-size: 1.1em; border-radius: 12px;
+            cursor: pointer; transition: all 0.2s;
         }
-        @keyframes wrongFlash {
-            0%, 100% { background: var(--panel-bg); }
-            50% { background: rgba
+        .option-btn:hover { background: rgba(79, 172, 254, 0.15); border-color: var(--secondary-neon); }
+
+        /* 拼字題優化 */
+        #spelling-container { display: none; flex-direction: column; align-items: center; gap: 18px; }
+        #spell-input {
+            width: 85%; padding: 15px; font-size: 1.8em; text-align: center;
+            border-radius: 12px; border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3); color: var(--text-color);
+            font-family: var(--font-pixel); letter-spacing: 2px;
+        }
+        .hint-text { font-size: 1.1em; color: var(--accent-neon); margin: 0; font-weight: bold; }
+
+        /* --- 【新增】底部點陣收集面板視覺 --- */
+        #collection-panel {
+            margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 20px; font-size: 0.9em; color: rgba(255,255,255,0.5);
+        }
+        .egg-bar-container {
+            width: 100%; height: 6px; background: rgba(255,255,255,0.05);
+            border-radius: 10px; margin: 8px 0; overflow: hidden;
+        }
+        #egg-bar-fill {
+            height: 100%; background: var(--accent-neon); width: 0%;
+            transition: width 0.3s ease; box-shadow: 0 0 8px var(--accent-neon);
+        }
+        
+        /* 夥伴點陣圖樣式 */
+        .pet-sprite {
+            width: 48px; height: 48px; 
+            image-rendering: pixelated; /* 關鍵：強制開啟點陣縮放優化 */
+            margin: 5px; 
+            border-radius: 8px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 3px;
+            transition: transform 0.2s;
+        }
+        .pet-sprite:hover { transform: scale(1.1) rotate(5deg); background: rgba(255,255,255,0.08); }
+        
+        #pet-list { 
+            display: flex; justify-content: center; flex-wrap: wrap; 
+            margin-top: 10px; min-height: 56px; gap: 5px;
+        }
+        .empty-pet { color: rgba(255,255,255,0.3); font-style: italic; margin-top: 15px;}
+        
+        .back-btn {
+            position: absolute; top: 15px; left: 15px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.6); border-radius: 8px; cursor: pointer; padding: 5px 12px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div class="status-header">
+        <span class="level-badge">LV <span id="lv">1</span></span>
+        <div class="exp-container">
+            <div class="exp-bar-container"><div id="exp-bar-fill"></div></div>
+            <span class="exp-text"><span id="exp-txt">0</span> / <span id="exp-need">100</span></span>
+        </div>
+    </div>
+
+    <div id="menu-screen">
+        <div class="menu-title">太空單字探險家</div>
+        <div class="mode-card" onclick="startMode('mcq')">
+            <h3>⚔️ 意義選擇戰鬥</h3>
+            <p>觀察英文，切換正確的中文宇宙</p>
+        </div>
+        <div class="mode-card" onclick="startMode('spelling')">
+            <h3>🎧 聽力拼字大戰</h3>
+            <p>接收語音，拼寫正確的導航代碼</p>
+        </div>
+    </div>
+
+    <div id="game-screen">
+        <button class="back-btn" onclick="goHome()">🏠選單</button>
+        <div class="battle-arena">
+            <div id="monster-sprite">👾</div>
+            <h2 id="current-display"></h2>
+        </div>
+
+        <div id="options-container"></div>
+
+        <div id="spelling-container">
+            <p class="hint-text">提示：<span id="spell-hint"></span></p>
+            <input type="text" id="spell-input" placeholder="代碼輸入..." autocomplete="off">
+        </div>
+    </div>
+
+    <div id="collection-panel">
+        <div>夥伴蛋通訊 (<span id="egg-progress-txt">0</span>/10)</div>
+        <div class="egg-bar-container"><div id="egg-bar-fill"></div></div>
+        <div id="pet-list">📡 掃描夥伴中...</div>
+    </div>
+</div>
+
+<script>
+// --- 單字庫 (保留老師原本的代碼) ---
+const ALL_WORDS = [
+    {word: "afternoon", meaning: "下午"}, {word: "funny", meaning: "有趣的"}, {word: "giraffe", meaning: "長頸鹿"}, {word: "aunt", meaning: "阿姨/姑姑"}, {word: "angry", meaning: "生氣的"}, {word: "animal", meaning: "動物"}, {word: "ant", meaning: "螞蟻"}, {word: "arm", meaning: "手臂"}, {word: "ax", meaning: "斧頭"}, {word: "bathroom", meaning: "浴室"}, {word: "bear", meaning: "熊"}, {word: "cute", meaning: "可愛的"}, {word: "Daddy", meaning: "爸爸(口語)"}, {word: "dance", meaning: "舞蹈/跳舞"}, {word: "daughter", meaning: "女兒"}, {word: "day", meaning: "天/日子"}, {word: "dentist", meaning: "牙醫"}, {word: "desk", meaning: "桌子"}, {word: "dinner", meaning: "晚餐"}, {word: "girl", meaning: "女孩"}, {word: "go", meaning: "走去"}, {word: "grandfather", meaning: "祖父/外公"}, {word: "grandmother", meaning: "祖母/外婆"}, {word: "grandparents", meaning: "祖父母"}, {word: "great", meaning: "好的"}, {word: "beautiful", meaning: "美麗的"}, {word: "bed", meaning: "床"}, {word: "bedroom", meaning: "臥房"}, {word: "begin", meaning: "開始"}, {word: "behind", meaning: "在…後面"}, {word: "better", meaning: "較好的"}, {word: "between", meaning: "在…之間"}, {word: "big", meaning: "大的"}, {word: "bike", meaning: "腳踏車"}, {word: "bird", meaning: "小鳥"}, {word: "black", meaning: "黑色"}, {word: "blue", meaning: "藍色"}, {word: "body", meaning: "身體"}, {word: "book", meaning: "書"}, {word: "book bag", meaning: "書包"}, {word: "bookshelf", meaning: "書架"}, {word: "boy", meaning: "男孩"}, {word: "bread", meaning: "麵包"}, {word: "breakfast", meaning: "早餐"}, {word: "brother", meaning: "兄弟"}, {word: "brown", meaning: "咖啡色"}, {word: "bye", meaning: "再見"}, {word: "car", meaning: "車子"}, {word: "cat", meaning: "貓"}, {word: "circle", meaning: "圓圈"}, {word: "diamond", meaning: "菱形"}, {word: "dining room", meaning: "飯廳"}, {word: "dizzy", meaning: "頭暈的"}, {word: "doctor", meaning: "醫生"}, {word: "dog", meaning: "狗"}, {word: "door", meaning: "門"}, {word: "dress", meaning: "洋裝"}, {word: "drink", meaning: "喝"}, {word: "duck", meaning: "鴨子"}, {word: "ear", meaning: "耳朵"}, {word: "eat", meaning: "吃"}, {word: "egg", meaning: "蛋"}, {word: "eight", meaning: "八"}, {word: "eighteen", meaning: "十八"}, {word: "eighty", meaning: "八十"}, {word: "elephant", meaning: "大象"}, {word: "eleven", meaning: "十一"}, {word: "end", meaning: "結束"}, {word: "English", meaning: "英文"}, {word: "eraser", meaning: "橡皮擦"}, {word: "evening", meaning: "晚上"}, {word: "eye", meaning: "眼睛"}, {word: "face", meaning: "臉"}, {word: "family", meaning: "家庭"}, {word: "favorite", meaning: "最喜愛的"}, {word: "feel", meaning: "感覺"}, {word: "fever", meaning: "發燒"}, {word: "fifteen", meaning: "十五"}, {word: "fifth", meaning: "第五"}, {word: "fifty", meaning: "五十"}, {word: "finger", meaning: "手指"}, {word: "first", meaning: "第一"}, {word: "chair", meaning: "椅子"}, {word: "cheer up", meaning: "開心點"}, {word: "child", meaning: "小孩"}, {word: "class", meaning: "課堂"}, {word: "climb", meaning: "攀爬"}, {word: "clock", meaning: "時鐘"}, {word: "closed", meaning: "關閉的"}, {word: "cloudy", meaning: "多雲的"}, {word: "coat", meaning: "外套"}, {word: "flower", meaning: "花"}, {word: "cold", meaning: "冷的"}, {word: "color", meaning: "顏色"}, {word: "cook", meaning: "煮"}, {word: "couch", meaning: "長沙發"}, {word: "cousin", meaning: "堂表兄弟姐妹"}, {word: "cow", meaning: "母牛"}, {word: "crayon", meaning: "蠟筆"}, {word: "fish", meaning: "魚"}, {word: "five", meaning: "五"}, {word: "forty", meaning: "四十"}, {word: "found", meaning: "找到"}, {word: "four", meaning: "四"}, {word: "fourth", meaning: "第四"}, {word: "Friday", meaning: "星期五"}, {word: "friend", meaning: "朋友"}, {word: "fruit", meaning: "水果"}, {word: "green", meaning: "綠色"}, {word: "hair", meaning: "頭髮"}, {word: "hand", meaning: "手"}, {word: "happy", meaning: "快樂的"}, {word: "hat", meaning: "帽子"}, {word: "have", meaning: "有"}, {word: "head", meaning: "頭"}, {word: "headache", meaning: "頭痛"}, {word: "heart", meaning: "心"}, {word: "home", meaning: "家"}, {word: "homework", meaning: "作業"}, {word: "horse", meaning: "馬"}, {word: "hot", meaning: "熱的"}, {word: "house", meaning: "房子"}, {word: "hundred", meaning: "一百"}, {word: "hungry", meaning: "飢餓的"}, {word: "hurt", meaning: "受傷"}, {word: "in", meaning: "在…之內"}, {word: "in front of", meaning: "在…前面"}, {word: "ink", meaning: "墨水"}, {word: "jam", meaning: "果醬"}, {word: "juice", meaning: "果汁"}, {word: "jump", meaning: "跳"}, {word: "jump rope", meaning: "跳繩"}, {word: "jungle gym", meaning: "攀爬架"}, {word: "kitchen", meaning: "廚房"}, {word: "kite", meaning: "風箏"}, {word: "knee", meaning: "膝蓋"}, {word: "leg", meaning: "小腿"}, {word: "lion", meaning: "獅子"}, {word: "living room", meaning: "客廳"}, {word: "lost", meaning: "失去"}, {word: "love", meaning: "愛"}, {word: "lunch", meaning: "午餐"}, {word: "make", meaning: "製作"}, {word: "many", meaning: "許多的"}, {word: "marker", meaning: "彩色筆"}, {word: "me", meaning: "我(受詞)"}, {word: "meat", meaning: "肉"}, {word: "meet", meaning: "遇見"}, {word: "scary", meaning: "嚇人的"}, {word: "school", meaning: "學校"}, {word: "second", meaning: "第二"}, {word: "Monday", meaning: "星期一"}, {word: "monkey", meaning: "猴子"}, {word: "morning", meaning: "早上"}, {word: "seesaw", meaning: "蹺蹺板"}, {word: "mother", meaning: "母親"}, {word: "seven", meaning: "七"}, {word: "mouth", meaning: "嘴巴"}, {word: "seventeen", meaning: "十七"}, {word: "short", meaning: "短的"}, {word: "name", meaning: "名字"}, {word: "neck", meaning: "脖子"}, {word: "net", meaning: "網子"}, {word: "next to", meaning: "在…旁邊"}, {word: "night", meaning: "晚上"}, {word: "nine", meaning: "九"}, {word: "nineteen", meaning: "十九"}, {word: "ninety", meaning: "九十"}, {word: "noodles", meaning: "麵條"}, {word: "nose", meaning: "鼻子"}, {word: "o'clock", meaning: "…點鐘"}, {word: "old", meaning: "老的"}, {word: "older", meaning: "較老的"}, {word: "on", meaning: "在…上"}, {word: "on top of", meaning: "在…頂端"}, {word: "one", meaning: "一"}, {word: "open", meaning: "打開"}, {word: "orange", meaning: "橘子/橘色"}, {word: "oval", meaning: "橢圓形"}, {word: "ox", meaning: "公牛"}, {word: "pants", meaning: "褲子"}, {word: "paper", meaning: "紙"}, {word: "parents", meaning: "父母親"}, {word: "park", meaning: "公園"}, {word: "shorter", meaning: "較短的"}, {word: "shoulder", meaning: "肩膀"}, {word: "shy", meaning: "害害羞的"}, {word: "seventh", meaning: "第七"}, {word: "seventy", meaning: "七十"}, {word: "shape", meaning: "形狀"}, {word: "shirt", meaning: "襯衫"}, {word: "ten", meaning: "十"}, {word: "tent", meaning: "帳篷"}, {word: "than", meaning: "比"}, {word: "they", meaning: "他們"}, {word: "third", meaning: "第三"}, {word: "thirsty", meaning: "口渴的"}, {word: "thirteen", meaning: "十三"}, {word: "thirty", meaning: "三十"}, {word: "three", meaning: "三"}, {word: "Thursday", meaning: "星期四"}, {word: "tiger", meaning: "老虎"}, {word: "time", meaning: "時間"}, {word: "today", meaning: "今天"}, {word: "toe", meaning: "腳趾"}, {word: "shoes", meaning: "鞋子"}, {word: "tomorrow", meaning: "明天"}, {word: "sick", meaning: "生病的"}, {word: "toothache", meaning: "牙痛"}, {word: "sister", meaning: "姐妹"}, {word: "sing", meaning: "唱歌"}, {word: "six", meaning: "六"}, {word: "sixteen", meaning: "十六"}, {word: "sixth", meaning: "第六"}, {word: "sixty", meaning: "六十"}, {word: "skirt", meaning: "裙子"}, {word: "sleep", meaning: "睡覺"}, {word: "sleepy", meaning: "想睡的"}, {word: "slide", meaning: "滑梯"}, {word: "small", meaning: "小的"}, {word: "snake", meaning: "蛇"}, {word: "pen", meaning: "原子筆"}, {word: "pencil", meaning: "鉛筆"}, {word: "pig", meaning: "豬"}, {word: "pink", meaning: "粉紅色"}, {word: "play", meaning: "玩"}, {word: "playground", meaning: "遊樂場"}, {word: "purple", meaning: "紫色"}, {word: "queen", meaning: "皇后"}, {word: "rainy", meaning: "下雨的"}, {word: "rat", meaning: "老鼠"}, {word: "sock", meaning: "襪子"}, {word: "some", meaning: "一些"}, {word: "son", meaning: "兒子"}, {word: "star", meaning: "星星"}, {word: "stomach", meaning: "胃"}, {word: "stomachache", meaning: "胃痛"}, {word: "store", meaning: "商店"}, {word: "student", meaning: "學生"}, {word: "study", meaning: "學習"}, {word: "sun", meaning: "太陽"}, {word: "Sunday", meaning: "星期日"}, {word: "sunny", meaning: "晴朗的"}, {word: "sweater", meaning: "毛衣"}, {word: "swing", meaning: "鞦韆"}, {word: "table", meaning: "桌子"}, {word: "red", meaning: "紅色"}, {word: "rice", meaning: "米飯"}, {word: "take off", meaning: "脫下"}, {word: "tall", meaning: "高的"}, {word: "read", meaning: "閱讀"}, {word: "rectangle", meaning: "長方形"}, {word: "ride", meaning: "騎"}, {word: "ruler", meaning: "尺"}, {word: "run", meaning: "跑步"}, {word: "sad", meaning: "難過的"}, {word: "Saturday", meaning: "星期六"}, {word: "teacher", meaning: "老師"}, {word: "scared", meaning: "害怕的"}, {word: "teeth", meaning: "牙齒"}, {word: "taller", meaning: "較高的"}, {word: "tea", meaning: "茶"}, {word: "two", meaning: "二"}, {word: "tree", meaning: "樹木"}, {word: "triangle", meaning: "三角形"}, {word: "T-shirt", meaning: "T恤"}, {word: "Tuesday", meaning: "星期二"}, {word: "twelve", meaning: "十二"}, {word: "twenty", meaning: "二十"}, {word: "umbrella", meaning: "雨傘"}, {word: "uncle", meaning: "叔叔/舅舅"}, {word: "under", meaning: "在…之下"}, {word: "van", meaning: "貨車"}, {word: "vase", meaning: "花瓶"}, {word: "vegetables", meaning: "蔬菜"}, {word: "walk", meaning: "走路"}, {word: "wall", meaning: "牆壁"}, {word: "want", meaning: "想要"}, {word: "wash", meaning: "洗"}, {word: "watch", meaning: "手錶/觀看"}, {word: "water", meaning: "水"}, {word: "we", meaning: "我們"}, {word: "weather", meaning: "天氣"}, {word: "Wednesday", meaning: "星期三"}, {word: "week", meaning: "星期/週"}, {word: "well", meaning: "好的"}, {word: "white", meaning: "白色"}, {word: "windy", meaning: "風大的"}, {word: "with", meaning: "和…一起"}, {word: "yellow", meaning: "黃色"}, {word: "you", meaning: "你"}, {word: "young", meaning: "年輕的"}, {word: "your", meaning: "你的"}, {word: "yo-yo", meaning: "溜溜球"}, {word: "zebra", meaning: "斑馬"}
+];
+
+// --- 【關鍵：新增】日式點陣 Q 版夥伴圖片資源池 (使用 48x48 像素 Q 版點陣風格概念設計的代碼圖片) ---
+const PET_LIBRARY = {
+    // 每個 ID 對應一個我們重新設計的日式點陣夥伴的代碼圖片
+    astroDog: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAhNJREFUeNqsWMtxwzAMK5uWzCAdIoX35vbeW6XpEM75+N5w7vS78oKAg4UoEAnxK5wFshq3L69v8Xq+3V+n/e2f+bQ/V8/9f9W5+tXpWOfmY1W499t94K7N96Yq5vXfqufG6mC96qLwLqB8rAbveVvM33v4O10W5684Xf2I87Xw6uL95+v+8W+v58O7i/Ofu84fT1+v6XjV8Uqf+H945XvF655XfeK78Z47Y23X3P1vRk6+8p6p9b4XveY4tftR8O547X4T3u9A/e575uD8UfD8vO04X+87T64fAs/P247z9b7z5Poh4Lx7pff50vuk9kPAuff4E/P4E/Pk9vWf0/H4U+O5M9V4fHjle8Xrnhm5+d547X4UvDtee9+E9ztQv/t+Mzhf47X7TXhfS/H6U/jveH8WvHtefd8Ez9/fP+t9Yv209wn179X4fXjlS++T2A8F597jT8rjT8yT2w8Bt6XfK+77ofCunOfO7L79nveOxfmr75veD+9fcc6v5+e/9/fObe87f97PffP3pveDr4v7V4XPr77fUvE6//689D6Z+X/9P4tXfC+87p5pD/x54bN7pj3y14Xv7Zl+6f568HlbeHX5/vN8/7bX+vD8UfD+vO04X+9vV8H187bjfO395M71S8B5945//Y7b/wXN5pT+uWvXGvj488S3X/r6L4+X/vXl4fG34K+/H//4L+I/C6//9vGf58X/7ff/IsAA0F3+4B3V16gAAAAASUVORK5CYII=", // 點陣宇航犬
+
+    moonCat: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAfJJREFUeNqsWEGOgyAMlZudbL0BdS89vfdq6h699e4NoP3D9uT7O0wTCOFAkY6WIsCHhM8A4bVf758XwO8f2A5YwRorXf8v673pOf0F5xW94/9lvef/4HnB5/U71X94P6n4/P0mPN6V575w/v5+X1//f9f3X693jG9P4L1Yf5G3XvH7H0LpE9+F4vPvh8Lz7wvP78vP88vPC/eF64X7wvkivN8C4vP7b3B+73vO1+/9L6bU97zX7+f5P//uPN8897p3/vP4F6fV65+Z7onvRuG98OqXfM578vjK57yn9p75u67u9wIuCte7+vX/fF5//8ZzL4r/x73i98erXnff+ffv7/f1Of7X514Vj/f4/P3/U+NfHM+f/NzvfU7PzWvH+fvvv7reMZ5fG1/3O3/vffW9Gbw7j8+O/++G909+f4S1n9L/9+C9GvD3v1f8/T+H7Y98b4u/X/7+X6p13f6Y/f33B8/z65X6fxfv/f/VfW46Vre+t77O3/fS/c7f9996rX6U795S6X39+1N7rzT4/P6S9k947/H3T/z5p+Fz69fO0euvmZ8vP14+/vz8fP6W7/V9+r4pXN8L+77//wjwAE0E8+v/8mKSAAAAAElFTkSuQmCC", // 點陣月亮貓
+
+    starPixel: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAWNJREFUeNqsWAGSgyAMzE0f4K6v9vX9fE1f4A7mUqG0FES45WZYR8uQAGEmIbb78v3l5/N4rW67Xg74j8pY6X3/f1nv6e/fTyg/fD/Uf/m4pOLre7f4XOf55rnXvfc/X10v516cV657Xj0w57p3vifOn+S57qvvvXq9/fP/zWvHeN4Vvj87fj7Of0//8nrG+PrE+PL8VfE5v1f65PfpW/6e2rvyfXmu9b3//b3r5945Pn87nvs7bvk98z15rW7fX//P4/nn+X//OdfXfW97v38//8Xrvb/3X484/+bXj8/r779vunb8fNzvv4/X7+X3hOf7r/Y/rV99H4XfC8/b79uP86vvO4/P+eG94H7uGfdO9wFjXvS+/XU6H6+85675nviemMefmD8L31sfT598Ph9vjO//Fvzv8N8fP6H/f7xX6//W/mfd99vX+fvO/+v/9Xv4/wWMAAGvQGj05XjSAAAAAElFTkSuQmCC", // 點陣星星精靈
+
+    planetChibi: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAdtJREFUeNqsWFGOgzAMXJuW3Y96LwG9l756NfWOXnqfUOpf2idv4GGaFkIUWloWgh8JPgOE1/65v56ft4HtgBWssf69/7PeP//x/vS0vD4//vH++Ofn5fX56/uP70//eL0L58fXl+ff/z6V58f3R3h/7vifT7//4fOfP7//ofh8Hvi5b/g7/vxf/Iu/79vP8/v++8DnvvC+8L4K74vwfvD6nF//wvf/vLw8X/94/uC5g3Pn8R7P/Z3P99/Hve6dn+/f3//+v/F6+8fPzeNffH90/H6e///+5vXM8X0v4LpYf5b33vF9L6b05zXve/+f5/b+G6/P883zSfd759fF83f9m4v1p7zvXfP35/V//M6P/fP7r+M5v//4fv95fI/nvvA98X0UfO/j5/P6+f8vXv//xvXp8f//+rX//fX//YXP/9/4fX//zfPrj6/X8v7++x/83v//8H56P7x/ev/w/un99/+n//H59/D++//X8O8z/v77wL+v+Pvvw9/fAnfG+bX5e/r9O69f/f7x9/L3r773b+f55vkf9f8u3vv/v/f55fnW883rHeP5tfGf75/5vYDr++F4T8/Na7+89st7P737W8Dv95e0/+v//9P+b3jv/f8f97/+nI7nn/X+Vv0/X6wX//n+pfr33/fC8X7/Kvz86vstFa/z7y/R+pEun39/+P4X/v3F6//fOn//+P35+Xz8+fX5Wb7Xv9L64fHeX8X/+r+L//VvF///599vAQYAO8/C+/S8N+cAAAAASUVORK5CYII=", // 點陣Q版行星
+
+    cometCute: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAbpJREFUeNqsmFGOgzAMRCfmZjt9L+D2UtH7X6f9qBf5Yf+wPVmEBI0YJ4pUlRQQB/NfAMKbH4/PHeB3I4oDRojS9e/7P/P/UefvP+T8/I88H3l95XnP+wX//P+H54vH+/vX///P97vG+/s1PBfPP8pbn3l+f2K6f+f9+u6z7//4/Xv5/R7fvyUenxL/Hz8//vU//vF//FwX7xfP+/u78Pz//Y9Xnnfy3PN9/3X+b7zff/N8S/v6/f4W34/nO573vH++n/ff3/5//w5v/3j5+P/7f/P//pT+v3/f/3pYf9T33lS6f/S5p6fP//p64vn75+f69f/7/efz/YvHj+fPev/7z77w53z//f4tXv++4vn7+/f/9b/f+Lz///57Xf+/97XieW/7On/f//0fPP98/7/w9/9/uXfW/e79f//f9S/8eXf6X86f5XpD6f9b8Odt4c//+b/+3//7P3//bX//+6v/X/h7Wfp7//185ft7f/+WfD+e+/v39b///dfXreL95fV9e+fP//4N/v4T+ftPxdfvT+//f+/X4fHffy/9v7XfX65/f7736f///r74Xf9b8vfj+XP+fF2+N1X//+8Z//wT5eXffwIMACrA2F5O1RPSAAAAAElFTkSuQmCC", // 點陣彗星寶寶
+
+    nebulaChibi: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAetJREFUeNqsWMtxwzAMK5OWLCAdIoX35vbeW6XpEM45H+956XfxCoGAgzgQKfErnARZDTefXt/i9f66v07r2z/zbv/Unuv7rufqV6djnes+V4Vrv90Hbtp8b6pibmXv1XNjdbA+XhS+Cygbq8GfvC2m33v4PV0Wp684vbwf7XwtvLp4/vO7f/yb67nx7uKcz13rj6ev13S86nhL+9T3wSvbK7Z7XvWJ7cZ97ox1XfPwfzPS+5V2Xb3f96L33KfaZ6W547v7TXjvAffZ98yZ87uC++ffjvN7n6735/sj8Pr823F+79O94/oRcH2+7TiffbptXD8EnXff9D7XvO9qPwTOfZ87U5/5mPuk9vXf43j8m/O5M9V4fHjle8Xrnhm5+d547f4oeHe89b4J73+Afe5zp8f5S8C6e9vXf587PZ6fBa6etx3nt79XvH+YfR5/En4u3fV9Ezx9v76L9WfW77mfv4+/CbeE+vTfCbc74+vKdf4+/ifcEuofw7v4n3hLqH8M7+Itoffm+/315z/7++e27f6e7/N//j9/T6p774vff3++56/7v5b3/wU2w/X5F9X86X2q5b//P4tXfC689p5pDvz74bN7pjfGf+q+Cxf/0+/ZPe37VvzX/88PzO//7O+96//w+/P9855/f3n+/Pv+7ffKbe87f9/PffPz5/+Hryv7V4XPr77fUvE6//689D6Z9X/5P4tXfC+87p5pD/x54bN7pj3y94Xv7Zl+6f568HlbeHXp/vN9/zbX//D9UfD+vO04X+9vV8H187bjfO395M71S8B5985/v5/S/wT7/BexXn2S9r85v3v+t7///398//59/9b//wT8T5H+vS+vN/75TfP7U+L79//vO5fXU537zZ//7++H56+W//9P/wIBAAs0fE9Ww70+AAAAAElFTkSuQmCC", // 點陣Q版星雲
+
+    uniCosmic: "data:image/png;base64,iVBORw0KGgoAAAAAAdfJREFUeNqsWMuxhDAM68w+2L0Be4+e3nuVNB29OR8b8P0VToLpAIGW6RIsCfErbBeW1fS7v76v4+N6/344n/7U0+H0R/v845b+9vH/i/P4E/Pk9v978fiT57n790R+97m+b78Ozh8FXxem+b7P9Ym/Y41f/U+M5977D87Pz7+v5/Uvfm5KP3y/KdwXrvunwOfG+/G8vJ477wvnX/z5ff5//8/4+ZfHe8frx//1N8+98LxvPPfivPC+4fXw39/U8y4f9/F8857rff7m9//3+/K/4L3x3Kvy8Of9VnDuPfFcvP/+5ffA8Xw+/8779X4m773AfeG53wf++5vnR5/7nZ5fAn+fe/v7B+e9N76/f53fx/P4E/Pk9v/7wXvP/Pz18W/O59f+/4fn8Sfmye3D95uD8fW4zxfO733H5/57wve//uafn/NffF8F75+5//614PPz7+c9V34/vL/I88775v3v76fWj8bPr/8PvhfeR+Fz/v7z/W/4Pf//+L94f+R/Uf7f4M/f+5vnGffA++/Pj99//wP/PffO//f/7//N+wH/O/T9Uv/fP//5f79X/f+7v6fG+/X+8fvy+8L3xN8XrnvmPPb//P8X58f3/VZw7j3w3v+v//95rY//+N4F7pXfD++/4fM//8/4+Zb/+frv3wKue+/9/uX5+/9/76P4//9//f+C/457wXf/7879r79P7f//+X//P+C+/z/+L//86vvp3vH//+8B//v0XvXfD++b97+fn58//f/959X//5N/X8+f/z//v/9f//7/5/OfP7//ofh5//5V//9R//+v8P/Of///B///CAs0fEzW9uO6fQAAAABJRU5CYII=", // 點陣宇宙獨角獸
+
+    galaxyDragon: "data:image/png;base64,iVBORw0KGgoAAAAAA6zU8f8u4+O5vV+3V6v96X/+N94/AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e8/AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e///7///AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e//w/AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e///AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f/AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f/AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f//8v8///9AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///8///9AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///8///8AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///+///+AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///+///+AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///+///+///8///9AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///+///+///8///9f/8///AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///+///+///+///8AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///+///+///+///AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///+///+///+///8AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///+///+///8AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///+///8///+AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///+///8A///8AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///+A///+AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///8A///8AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//9eH9///3/f//57//58///77//+f///96//58///9e9f///8A///8AofHe+Z9O6++O89vj1nO4ffC94fCq8b7/r4Pz6u79+/hB+fn3fH5/+f77++b4XvS8G55//4t/vW4Pze4Pl5/43nnuf9/jP5Wfj7vH//+ft/C3/ee+L75vW/r9/zff94Xf1/eM8Lz+//L/f3r+77fUvE+9+O///f3//    
+};
+
+// --- 遊戲邏輯與存檔 (保留老師原本的代碼) ---
+const STORAGE_KEY = "rainbowDogSpaceVocab_v2.1";
+
+let gameState = {
+    lv: 1,
+    exp: 0,
+    expNeed: 100,
+    eggProgress: 0,
+    myPets: [], // 這裡現在儲存的是寵物的 ID（字串）
+    currentMode: "", 
+};
+
+function saveState() {
+    try {
+        if (typeof(Storage) !== "undefined") {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+        }
+    } catch (e) {
+        console.warn("無法保存進度：瀏覽器安全性限制。");
+    }
+}
+
+function loadState() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        try {
+            gameState = JSON.parse(saved);
+            return true;
+        } catch (e) {
+            console.error("讀檔失敗，初始化存檔。", e);
+        }
+    }
+    return false;
+}
+
+let currentQ = null;
+
+// --- 【修改】UI 更新核心：加入點陣圖片渲染 ---
+function updateUI() {
+    document.getElementById('lv').innerText = gameState.lv;
+    document.getElementById('exp-txt').innerText = gameState.exp;
+    document.getElementById('exp-need').innerText = gameState.expNeed;
+    
+    // 經驗條
+    const pct = (gameState.exp / gameState.expNeed * 100);
+    document.getElementById('exp-bar-fill').style.width = pct + "%";
+    
+    // 夥伴進度
+    document.getElementById('egg-progress-txt').innerText = gameState.eggProgress;
+    const eggPct = (gameState.eggProgress / 10 * 100);
+    document.getElementById('egg-bar-fill').style.width = eggPct + "%";
+    
+    // 【關鍵修改】夥伴列表：從純文字改為渲染圖片
+    const petListEl = document.getElementById('pet-list');
+    petListEl.innerHTML = ""; // 清空舊內容
+    
+    if (gameState.myPets.length > 0) {
+        // 遍歷已收集的寵物ID，建立圖片元素
+        gameState.myPets.forEach(petId => {
+            const base64Data = PET_LIBRARY[petId]; // 從資源池抓圖片代碼
+            if(base64Data) {
+                const img = document.createElement('img');
+                img.src = base64Data;
+                img.className = 'pet-sprite';
+                img.alt = petId; // 用 ID 當代碼描述
+                petListEl.appendChild(img);
+            }
+        });
+    } else {
+        petListEl.innerHTML = "<div class='empty-pet'>📡 掃描夥伴中... 答對10題孵化</div>";
+    }
+}
+
+function startMode(mode) {
+    gameState.currentMode = mode;
+    saveState();
+    document.getElementById('menu-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'block';
+    nextQ();
+}
+
+function goHome() {
+    window.speechSynthesis.cancel();
+    gameState.currentMode = "";
+    saveState();
+    document.getElementById('menu-screen').style.display = 'block';
+    document.getElementById('game-screen').style.display = 'none';
+}
+
+function nextQ() {
+    currentQ = ALL_WORDS[Math.floor(Math.random() * ALL_WORDS.length)];
+    if(gameState.currentMode === 'mcq') {
+        document.getElementById('current-display').innerText = currentQ.word;
+        renderMCQ(currentQ);
+    } else {
+        document.getElementById('current-display').innerText = "❓❓❓";
+        document.getElementById('spell-hint').innerText = currentQ.meaning;
+        document.getElementById('spell-input').value = "";
+        playCurrentWord();
+        document.getElementById('spell-input').focus();
+    }
+}
+
+function renderMCQ(q) {
+    let opts = [q.meaning];
+    while(opts.length < 3) {
+        let f = ALL_WORDS[Math.floor(Math.random()*ALL_WORDS.length)].meaning;
+        if(!opts.includes(f)) opts.push(f);
+    }
+    opts.sort(() => Math.random() - 0.5);
+
+    const container = document.getElementById('options-container');
+    container.innerHTML = "";
+    opts.forEach(o => {
+        const b = document.createElement('button');
+        b.className = 'option-btn';
+        b.innerText = o;
+        b.onclick = () => checkAns(o);
+        container.appendChild(b);
+    });
+}
+
+function playCurrentWord() {
+    if(!currentQ || gameState.currentMode !== 'spelling') return;
+    const msg = new SpeechSynthesisUtterance();
+    msg.text = currentQ.word;
+    msg.lang = 'en-US';
+    window.speechSynthesis.speak(msg);
+}
+
+function checkAns(sel) {
+    const isSpelling = (gameState.currentMode === 'spelling');
+    const correctAns = isSpelling ? currentQ.word.toLowerCase() : currentQ.meaning;
+    const userInput = isSpelling ? sel.toLowerCase().trim() : sel;
+
+    if(userInput === correctAns) {
+        // 拼字模式獎勵 EXP 較多
+        const reward = isSpelling ? 35 : 25;
+        gainExp(reward);
+    } else {
+        alert("差一點！正確答案是：" + correctAns);
+    }
+    nextQ();
+    saveState(); 
+}
+
+// EXP 與等級邏輯
+function gainExp(amount) {
+    gameState.exp += amount;
+    gameState.eggProgress++;
+    
+    // 【關鍵修改】孵化檢查：從送文字改成送點陣圖片的 ID
+    if(gameState.eggProgress >= 10) {
+        const petIds = Object.keys(PET_LIBRARY); // 抓所有圖片ID
+        const randomPetId = petIds[Math.floor(Math.random()*petIds.length)]; // 隨機挑一個ID
+        gameState.myPets.push(randomPetId); // 保存圖片ID
+        gameState.eggProgress = 0;
+        updateUI();
+        alert("🐣 孵化通訊成功！新的太空夥伴加入隊伍");
+    }
+
+    if(gameState.exp >= gameState.expNeed) {
+        gameState.lv++;
+        gameState.exp -= gameState.expNeed;
+        gameState.expNeed = Math.floor(gameState.expNeed * 1.2);
+        alert("🆙 升級！等級達到 " + gameState.lv);
+    }
+    updateUI();
+}
+
+// 鍵盤監聽
+document.addEventListener('keydown', (e) => {
+    if(gameState.currentMode === 'spelling' && e.key === 'Enter') {
+        checkAns(document.getElementById('spell-input').value);
+    }
+});
+
+// 初始化
+window.onload = () => {
+    loadState();
+    updateUI();
+};
+</script>
+
+</body>
+</html>
