@@ -26,3 +26,30 @@ body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; 
 .lib-list { display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; padding: 5px; text-align: left; }
 .pet-card { background: rgba(255, 255, 255, 0.08); border-radius: 15px; padding: 12px; border: 1px solid #444; display: flex; align-items: center; gap: 15px; cursor: pointer; }
 .story-box { background: rgba(0,0,0,0.5); border: 1px solid var(--accent); border-radius: 15px; padding: 18px; line-height: 1.7; text-align: left; font-size: 0.85em; max-height: 200px; overflow-y: auto; }
+
+/* --- 像素風強化指令 --- */
+
+/* 核心：讓所有 SVG 圖像在放大時保持點對點銳利，不產生模糊感 */
+svg {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+/* 強化頭像框：加入日系復古遊戲的白色粗框與亮色陰影 */
+.avatar-box, .pet-img-box {
+    width: 64px;
+    height: 64px;
+    background: #000 !important; /* 背景漆黑，突顯點陣色塊 */
+    border: 3px solid #fff !important; /* 白色粗框是日系像素經典 */
+    border-radius: 8px !important; /* 稍微圓角，更有復古掌機感 */
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.5); /* 霓虹光暈 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.avatar-svg {
+    width: 55px; /* 稍微縮小，留出呼吸空間 */
+    height: 55px;
+}
